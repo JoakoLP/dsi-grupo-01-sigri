@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIGRI - Sistema de Gestión de Riesgo de Inundaciones con Integración GIS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    /* Estilos personalizados para simulación GIS y scrollbars limpios */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .osm-grid {
+      background-color: #e5e9ec;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.6) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.6) 1px, transparent 1px),
+        radial-gradient(circle at 25% 35%, #dbeafe 0%, transparent 45%),
+        radial-gradient(circle at 75% 65%, #dcfce7 0%, transparent 40%);
+      background-size: 40px 40px, 40px 40px, 100% 100%, 100% 100%;
+    }
+    .pulse-ring {
+      animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      70% { transform: scale(1.25); opacity: 0; }
+      100% { transform: scale(0.95); opacity: 0; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- ===================================================================== -->
+  <!-- PANTALLA 0A: LOGIN Y SELECCIÓN DE ROL                                 -->
+  <!-- ===================================================================== -->
+  <div id="view-login" class="min-h-screen flex flex-col lg:flex-row">
+    <!-- Columna Izquierda (60%) -->
+    <div class="lg:w-3/5 bg-slate-900 text-white p-8 lg:p-16 flex flex-col justify-between relative overflow-hidden">
+      <div class="absolute inset-0 opacity-15 pointer-events-none" style="background-image: radial-gradient(#38bdf8 1px, transparent 1px); background-size: 24px 24px;"></div>
+      <div class="relative z-10 flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl bg-blue-600 flex items-center justify-center text-xl font-bold shadow-lg shadow-blue-600/30">
+          <i class="fa-solid fa-water"></i>
+        </div>
+        <div>
+          <span class="text-2xl font-extrabold tracking-tight">SIGRI</span>
+          <span class="block text-xs text-blue-300 uppercase tracking-widest">UTN FRLP · Diseño de Sistemas</span>
+        </div>
+      </div>
+
+      <div class="relative z-10 my-12 max-w-xl">
+        <span class="inline-block px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold mb-4">
+          Prototipo Funcional · Entrega 4 (GUI &amp; Trazabilidad UML)
+        </span>
+        <h1 class="text-3xl lg:text-5xl font-bold leading-tight mb-6">
+          Sistema de Gestión de Riesgo de Inundaciones con Integración GIS
+        </h1>
+        <p class="text-slate-300 text-base lg:text-lg leading-relaxed">
+          Plataforma unificada para el modelado espacial de zonas circulares de riesgo, monitoreo continuo mediante sensores ambientales simulados, evaluación automática de umbrales y alerta temprana.
+        </p>
+      </div>
+
+      <div class="relative z-10 grid grid-cols-3 gap-4 border-t border-slate-800 pt-6 text-xs text-slate-400">
+        <div>
+          <strong class="text-white block text-sm">Módulo A</strong>
+          Capas de Riesgo, Sensores y Refugios
+        </div>
+        <div>
+          <strong class="text-white block text-sm">Módulo B</strong>
+          Monitoreo, Umbrales y Alertas
+        </div>
+        <div>
+          <strong class="text-white block text-sm">Módulo C</strong>
+          Visualización GIS (Patrón Composite)
+        </div>
+      </div>
+    </div>
+
+    <!-- Columna Derecha (40%) -->
+    <div class="lg:w-2/5 bg-white p-8 lg:p-14 flex flex-col justify-center">
+      <div class="max-w-md w-full mx-auto">
+        <h2 class="text-2xl font-bold text-slate-900 mb-1">Iniciar Sesión</h2>
+        <p class="text-sm text-slate-500 mb-6">Ingrese sus credenciales o seleccione un actor del sistema para la demostración.</p>
+
+        <!-- Alerta de error (Heurística de Nielsen: Prevención y recuperación de errores) -->
+        <div id="login-error" class="hidden mb-5 p-3.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-2.5">
+          <i class="fa-solid fa-circle-exclamation mt-0.5"></i>
+          <div>
+            <strong class="font-semibold block">Error de autenticación</strong>
+            Credenciales inválidas o usuario inactivo. Verifique los datos e intente nuevamente.
+          </div>
+        </div>
+
+        <form onsubmit="handleLogin(event)" class="space-y-4">
+          <!-- Etiquetas siempre visibles arriba de cada input -->
+          <div>
+            <label for="login-user" class="block text-sm font-semibold text-slate-700 mb-1">Usuario o Correo Institucional</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-user"></i></span>
+              <input id="login-user" type="text" value="operador@defensacivil.gob.ar" class="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none" required />
+            </div>
+          </div>
+
+          <div>
+            <label for="login-pass" class="block text-sm font-semibold text-slate-700 mb-1">Contraseña</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-lock"></i></span>
+              <input id="login-pass" type="password" value="••••••••••••" class="w-full pl-10 pr-10 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none" required />
+              <button type="button" onclick="togglePass()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
+                <i id="pass-eye" class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Selector de Perfil / Actor (Trazabilidad con Especificación Funcional) -->
+          <div>
+            <label for="login-role" class="block text-sm font-semibold text-slate-700 mb-1">Perfil de Actor (Simulación de Permisos)</label>
+            <select id="login-role" onchange="updateLoginPreview()" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm bg-slate-50 font-medium text-slate-800 focus:ring-2 focus:ring-blue-600 outline-none">
+              <option value="Operador de Defensa Civil">Operador de Defensa Civil (Monitoreo y Alertas)</option>
+              <option value="Administrador del Sistema">Administrador del Sistema (Configuración Total ABMs)</option>
+              <option value="Autoridad Municipal">Autoridad Municipal (Consulta Ejecutiva y GIS)</option>
+            </select>
+            <p id="role-desc" class="mt-1.5 text-xs text-slate-500">Acceso operativo a monitoreo en tiempo real, simulación de mediciones y gestión de estados de alertas.</p>
+          </div>
+
+          <div class="pt-2 flex flex-col gap-2.5">
+            <button type="submit" class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition flex items-center justify-center gap-2">
+              <span>Ingresar al Sistema</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <button type="button" onclick="simulateLoginError()" class="w-full py-2 px-3 border border-slate-200 hover:bg-slate-50 text-slate-500 text-xs font-medium rounded-lg transition">
+              Probar estado de error de validación (Heurística Nielsen)
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- APLICACIÓN INTERNA (LAYOUT RESPONSIVO CON SIDEBAR + HEADER)           -->
+  <!-- ===================================================================== -->
+  <div id="app-shell" class="hidden min-h-screen flex flex-col lg:flex-row">
+    
+    <!-- Backdrop móvil -->
+    <div id="sidebar-backdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-slate-900/50 z-30 hidden lg:hidden"></div>
+
+    <!-- SIDEBAR FIJO (240px) -->
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-64 bg-slate-900 text-slate-200 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out shrink-0">
+      <div class="h-16 px-5 flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">
+            <i class="fa-solid fa-water"></i>
+          </div>
+          <div>
+            <span class="font-bold text-white tracking-tight text-lg">SIGRI</span>
+            <span class="block text-[10px] text-slate-400 leading-none">GIS Riesgo Hídrico</span>
+          </div>
+        </div>
+        <button onclick="toggleMobileSidebar()" class="lg:hidden text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Menú de navegación -->
+      <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto text-sm">
+        <div class="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500">General</div>
+        <button onclick="navigate('dashboard')" data-nav="dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition">
+          <i class="fa-solid fa-chart-pie w-4 text-center"></i>
+          <span>Dashboard</span>
+        </button>
+        <button onclick="navigate('mapa')" data-nav="mapa" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition">
+          <i class="fa-solid fa-map-location-dot w-4 text-center"></i>
+          <span>Mapa GIS</span>
+          <span class="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-blue-400">Mód. C</span>
+        </button>
+
+        <div class="px-3 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Módulo A · Infraestructura</div>
+        <button onclick="navigate('zonas')" data-nav="zonas" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition">
+          <i class="fa-solid fa-draw-polygon w-4 text-center"></i>
+          <span>Zonas de Riesgo</span>
+        </button>
+        <button onclick="navigate('sensores')" data-nav="sensores" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition">
+          <i class="fa-solid fa-tower-broadcast w-4 text-center"></i>
+          <span>Sensores</span>
+        </button>
+        <button onclick="navigate('refugios')" data-nav="refugios" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition">
+          <i class="fa-solid fa-house-medical w-4 text-center"></i>
+          <span>Refugios</span>
+        </button>
+
+        <div class="px-3 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Módulo B · Monitoreo</div>
+        <button onclick="navigate('monitoreo')" data-nav="monitoreo" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition">
+          <i class="fa-solid fa-wave-square w-4 text-center"></i>
+          <span>Mediciones y Simulación</span>
+        </button>
+        <button onclick="navigate('umbrales')" data-nav="umbrales" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition">
+          <i class="fa-solid fa-sliders w-4 text-center"></i>
+          <span>Umbrales</span>
+        </button>
+        <button onclick="navigate('alertas')" data-nav="alertas" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition">
+          <i class="fa-solid fa-bell w-4 text-center"></i>
+          <span>Alertas</span>
+          <span id="sidebar-alert-badge" class="ml-auto text-xs px-2 py-0.5 rounded-full bg-red-600 text-white font-bold">2</span>
+        </button>
+      </nav>
+
+      <!-- Pie del Sidebar -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950/50">
+        <div class="flex items-center gap-2.5 mb-3">
+          <div class="w-8 h-8 rounded-full bg-blue-900/60 border border-blue-500/40 flex items-center justify-center text-blue-300 text-xs font-bold">
+            <i class="fa-solid fa-user-shield"></i>
+          </div>
+          <div class="overflow-hidden">
+            <p id="current-role-label" class="text-xs font-semibold text-white truncate">Operador de Defensa Civil</p>
+            <p class="text-[11px] text-slate-400 truncate">Sesión verificada</p>
+          </div>
+        </div>
+        <button onclick="logout()" class="w-full py-1.5 px-3 rounded-lg border border-slate-700 hover:bg-slate-800 text-xs text-slate-300 flex items-center justify-center gap-2 transition">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Cerrar Sesión</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="flex-1 flex flex-col min-w-0">
+      
+      <!-- HEADER SUPERIOR -->
+      <header class="h-16 bg-white border-b border-slate-200 px-4 lg:px-8 flex items-center justify-between sticky top-0 z-20">
+        <div class="flex items-center gap-3">
+          <button onclick="toggleMobileSidebar()" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100">
+            <i class="fa-solid fa-bars text-lg"></i>
+          </button>
+          <div>
+            <h1 id="header-title" class="text-lg font-bold text-slate-900 leading-tight">Panel de Control General</h1>
+            <p id="header-breadcrumb" class="text-xs text-slate-500 hidden sm:block">SIGRI / Vista General Operativa</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Indicador de Job Automático (programarJobAutomatico) -->
+          <button onclick="toggleAutoJob()" id="job-status-btn" title="Clic para pausar/reanudar el job automático de simulación" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 transition">
+            <span id="job-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span id="job-text" class="hidden sm:inline">Simulación Automática: Activa</span>
+            <span class="sm:hidden">Job Auto</span>
+          </button>
+
+          <!-- Botón rápido Alertas -->
+          <button onclick="navigate('alertas')" class="relative p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition" title="Ver Alertas Activas">
+            <i class="fa-solid fa-bell text-lg"></i>
+            <span id="header-alert-count" class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center">2</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- ÁREA DE CONTENIDO DINÁMICO -->
+      <main class="flex-1 p-4 lg:p-8 max-w-7xl w-full mx-auto">
+
+        <!-- =============================================================== -->
+        <!-- VISTA 0B: DASHBOARD GENERAL                                     -->
+        <!-- =============================================================== -->
+        <section id="sec-dashboard" class="space-y-6">
+          <!-- 4 Tarjetas KPI -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Alertas Activas</span>
+                <span class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation"></i></span>
+              </div>
+              <div class="flex items-baseline gap-2">
+                <span id="kpi-alertas-total" class="text-3xl font-extrabold text-slate-900">2</span>
+                <span id="kpi-alertas-detail" class="text-xs font-medium text-red-600">1 Crítica · 1 Alta</span>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Zonas Monitoreadas</span>
+                <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fa-solid fa-draw-polygon"></i></span>
+              </div>
+              <div class="flex items-baseline gap-2">
+                <span id="kpi-zonas-total" class="text-3xl font-extrabold text-slate-900">3</span>
+                <span class="text-xs font-medium text-slate-500">Geometrías circulares</span>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Salud de Sensores</span>
+                <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-tower-broadcast"></i></span>
+              </div>
+              <div class="flex items-baseline gap-2 mb-2">
+                <span id="kpi-sensores-total" class="text-3xl font-extrabold text-slate-900">4</span>
+                <span id="kpi-sensores-activos" class="text-xs font-medium text-emerald-600">3 Activos</span>
+              </div>
+              <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden flex">
+                <div class="bg-emerald-500 h-full" style="width: 75%"></div>
+                <div class="bg-amber-400 h-full" style="width: 25%"></div>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Refugios Disponibles</span>
+                <span class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center"><i class="fa-solid fa-house-medical"></i></span>
+              </div>
+              <div class="flex items-baseline gap-2">
+                <span id="kpi-refugios-total" class="text-3xl font-extrabold text-slate-900">2</span>
+                <span class="text-xs font-medium text-slate-500">Carácter informativo</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección Central (2 Columnas) -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Bandeja Prioritaria de Alertas (65% -> 8 cols) -->
+            <div class="lg:col-span-8 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col">
+              <div class="p-5 border-b border-slate-200 flex items-center justify-between">
+                <div>
+                  <h2 class="font-bold text-slate-900">Bandeja Prioritaria de Alertas</h2>
+                  <p class="text-xs text-slate-500">Invoca <code class="text-blue-600">GestorDeMonitoreo.listarAlertasActivas()</code></p>
+                </div>
+                <button onclick="navigate('alertas')" class="text-xs font-semibold text-blue-600 hover:underline">Ver historial completo →</button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                  <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b border-slate-200">
+                    <tr>
+                      <th class="py-3 px-4">Código</th>
+                      <th class="py-3 px-4">Zona de Riesgo</th>
+                      <th class="py-3 px-4">Nivel</th>
+                      <th class="py-3 px-4">Fecha/Hora</th>
+                      <th class="py-3 px-4">Estado</th>
+                      <th class="py-3 px-4 text-right">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dash-alertas-tbody" class="divide-y divide-slate-100"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Vista Previa GIS y Acciones Rápidas (35% -> 4 cols) -->
+            <div class="lg:col-span-4 space-y-6">
+              <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+                  <span class="font-bold text-sm text-slate-900">Vista Previa GIS</span>
+                  <span class="text-[11px] text-slate-400">OpenStreetMap</span>
+                </div>
+                <div class="h-44 osm-grid relative flex items-center justify-center p-4">
+                  <div class="w-24 h-24 rounded-full bg-red-500/20 border-2 border-red-500 flex items-center justify-center">
+                    <span class="w-3 h-3 rounded-full bg-red-600 pulse-ring"></span>
+                  </div>
+                  <div class="absolute top-6 left-10 w-6 h-6 rounded-full bg-emerald-600 text-white text-[10px] flex items-center justify-center shadow"><i class="fa-solid fa-tower-broadcast"></i></div>
+                  <div class="absolute bottom-8 right-12 w-6 h-6 rounded-md bg-indigo-600 text-white text-[10px] flex items-center justify-center shadow"><i class="fa-solid fa-house-medical"></i></div>
+                  <button onclick="navigate('mapa')" class="absolute bottom-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-slate-900/90 hover:bg-slate-900 text-white text-xs font-semibold rounded-full shadow-lg transition whitespace-nowrap">
+                    Abrir Mapa GIS Completo
+                  </button>
+                </div>
+              </div>
+
+              <!-- Acciones Rápidas -->
+              <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+                <h3 class="font-bold text-sm text-slate-900 mb-3">Acciones Rápidas Operativas</h3>
+                <div class="space-y-2">
+                  <button onclick="navigate('monitoreo')" class="w-full py-2 px-3 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold flex items-center justify-between transition">
+                    <span><i class="fa-solid fa-plus mr-2"></i>Registrar Medición Manual</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                  </button>
+                  <button data-admin-only onclick="navigate('zonas'); openModal('modal-zona')" class="w-full py-2 px-3 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold flex items-center justify-between transition">
+                    <span><i class="fa-solid fa-plus mr-2"></i>Nueva Zona de Riesgo</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                  </button>
+                  <button data-admin-only onclick="navigate('sensores'); openModal('modal-sensor')" class="w-full py-2 px-3 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold flex items-center justify-between transition">
+                    <span><i class="fa-solid fa-plus mr-2"></i>Registrar Sensor</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gráfico de Tendencia -->
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+              <div>
+                <h3 class="font-bold text-slate-900">Evolución de Mediciones vs. Umbral Crítico (Últimas 24 hs)</h3>
+                <p class="text-xs text-slate-500">Nivel hidrométrico (cm) · Comparativa contra umbral máximo configurado</p>
+              </div>
+              <span class="inline-flex items-center gap-2 text-xs font-medium text-red-600 bg-red-50 px-3 py-1 rounded-full">
+                <span class="w-2.5 h-0.5 bg-red-600"></span> Umbral Crítico: 250 cm
+              </span>
+            </div>
+            <!-- Gráfico SVG responsivo -->
+            <div class="w-full h-48 relative">
+              <svg viewBox="0 0 800 180" class="w-full h-full overflow-visible">
+                <!-- Líneas guía -->
+                <line x1="40" y1="20" x2="780" y2="20" stroke="#e2e8f0" stroke-dasharray="4" />
+                <line x1="40" y1="60" x2="780" y2="60" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6" />
+                <line x1="40" y1="100" x2="780" y2="100" stroke="#e2e8f0" stroke-dasharray="4" />
+                <line x1="40" y1="140" x2="780" y2="140" stroke="#e2e8f0" />
+                <!-- Etiquetas Y -->
+                <text x="5" y="24" font-size="10" fill="#64748b">300</text>
+                <text x="5" y="64" font-size="10" fill="#ef4444" font-weight="bold">250</text>
+                <text x="5" y="104" font-size="10" fill="#64748b">150</text>
+                <text x="5" y="144" font-size="10" fill="#64748b">50</text>
+                <!-- Área y Curva -->
+                <polygon points="40,140 40,120 160,110 280,95 400,75 520,52 640,45 780,38 780,140" fill="rgba(37, 99, 235, 0.1)" />
+                <polyline fill="none" stroke="#2563eb" stroke-width="3" points="40,120 160,110 280,95 400,75 520,52 640,45 780,38" />
+                <!-- Puntos -->
+                <circle cx="40" cy="120" r="4" fill="#2563eb" />
+                <circle cx="160" cy="110" r="4" fill="#2563eb" />
+                <circle cx="280" cy="95" r="4" fill="#2563eb" />
+                <circle cx="400" cy="75" r="4" fill="#2563eb" />
+                <circle cx="520" cy="52" r="5" fill="#ef4444" />
+                <circle cx="640" cy="45" r="5" fill="#ef4444" />
+                <circle cx="780" cy="38" r="5" fill="#ef4444" />
+                <!-- Etiquetas X -->
+                <text x="40" y="162" font-size="10" fill="#64748b">00:00</text>
+                <text x="280" y="162" font-size="10" fill="#64748b">08:00</text>
+                <text x="520" y="162" font-size="10" fill="#64748b">16:00</text>
+                <text x="750" y="162" font-size="10" fill="#64748b">Ahora</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- VISTA 1: MAPA GEORREFERENCIADO PRINCIPAL (MÓDULO C - COMPOSITE) -->
+        <!-- =============================================================== -->
+        <section id="sec-mapa" class="hidden space-y-4">
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col lg:flex-row h-[640px]">
+            
+            <!-- Panel Lateral de Control de Capas (Patrón Composite: Capa / Componente) -->
+            <div class="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-slate-200 p-4 flex flex-col justify-between bg-slate-50/70 overflow-y-auto">
+              <div class="space-y-4">
+                <div>
+                  <div class="flex items-center justify-between">
+                    <h2 class="font-bold text-slate-900 text-sm">Control de Capas GIS</h2>
+                    <span class="text-[10px] px-2 py-0.5 rounded bg-blue-100 text-blue-700 font-semibold">Patrón Composite</span>
+                  </div>
+                  <p class="text-xs text-slate-500 mt-0.5">Alternar visibilidad (<code class="text-slate-700">esVisible</code>) y filtros de <code class="text-slate-700">MapaVisualizacionGeografica</code>.</p>
+                </div>
+
+                <!-- Árbol de Capas -->
+                <div class="space-y-2.5 bg-white p-3 rounded-lg border border-slate-200">
+                  <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5 pb-1 border-b border-slate-100">
+                    <i class="fa-solid fa-layer-group text-blue-600"></i>
+                    <span>Capa Raíz: Mapa Base (OSM)</span>
+                  </div>
+
+                  <!-- Capa Zonas -->
+                  <div class="space-y-1.5">
+                    <label class="flex items-center justify-between text-xs font-semibold text-slate-800 cursor-pointer">
+                      <span class="flex items-center gap-2">
+                        <input type="checkbox" id="layer-zonas" checked onchange="renderMapElements()" class="rounded text-blue-600" />
+                        <i class="fa-regular fa-circle-dot text-orange-500"></i> Capa Zonas de Riesgo
+                      </span>
+                    </label>
+                    <select id="map-filter-zona" onchange="renderMapElements()" class="w-full text-xs border border-slate-200 rounded px-2 py-1 bg-slate-50">
+                      <option value="all">filtrarZonasDeRiesgo(Todos)</option>
+                      <option value="critico">Nivel: Crítico</option>
+                      <option value="alto">Nivel: Alto</option>
+                      <option value="medio">Nivel: Medio</option>
+                      <option value="bajo">Nivel: Bajo</option>
+                    </select>
+                  </div>
+
+                  <!-- Capa Sensores -->
+                  <div class="space-y-1.5 pt-2 border-t border-slate-100">
+                    <label class="flex items-center justify-between text-xs font-semibold text-slate-800 cursor-pointer">
+                      <span class="flex items-center gap-2">
+                        <input type="checkbox" id="layer-sensores" checked onchange="renderMapElements()" class="rounded text-blue-600" />
+                        <i class="fa-solid fa-tower-broadcast text-emerald-600"></i> Capa Sensores
+                      </span>
+                    </label>
+                    <select id="map-filter-sensor" onchange="renderMapElements()" class="w-full text-xs border border-slate-200 rounded px-2 py-1 bg-slate-50">
+                      <option value="all">filtrarSensores(Todos)</option>
+                      <option value="activo">Estado: Activo</option>
+                      <option value="enMantenimiento">Estado: En Mantenimiento</option>
+                      <option value="desconectado">Estado: Desconectado</option>
+                      <option value="inactivo">Estado: Inactivo</option>
+                    </select>
+                  </div>
+
+                  <!-- Capa Alertas -->
+                  <div class="space-y-1.5 pt-2 border-t border-slate-100">
+                    <label class="flex items-center justify-between text-xs font-semibold text-slate-800 cursor-pointer">
+                      <span class="flex items-center gap-2">
+                        <input type="checkbox" id="layer-alertas" checked onchange="renderMapElements()" class="rounded text-blue-600" />
+                        <i class="fa-solid fa-bell text-red-600"></i> Capa Alertas Activas
+                      </span>
+                    </label>
+                    <select id="map-filter-alerta" onchange="renderMapElements()" class="w-full text-xs border border-slate-200 rounded px-2 py-1 bg-slate-50">
+                      <option value="all">filtrarAlertas(Todas)</option>
+                      <option value="activa">Estado: Activa</option>
+                      <option value="enAnalisis">Estado: En Análisis</option>
+                      <option value="atendida">Estado: Atendida</option>
+                    </select>
+                  </div>
+
+                  <!-- Capa Refugios -->
+                  <div class="pt-2 border-t border-slate-100">
+                    <label class="flex items-center justify-between text-xs font-semibold text-slate-800 cursor-pointer">
+                      <span class="flex items-center gap-2">
+                        <input type="checkbox" id="layer-refugios" checked onchange="renderMapElements()" class="rounded text-blue-600" />
+                        <i class="fa-solid fa-house-medical text-indigo-600"></i> Capa Refugios
+                      </span>
+                    </label>
+                    <button type="button" onclick="toggleRefugiosBtn()" class="mt-1.5 w-full py-1 px-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded text-[11px] font-semibold transition">
+                      alternarVisualizacionRefugios()
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Coordenadas Centro -->
+              <div class="mt-4 p-2.5 bg-slate-900 text-slate-300 rounded-lg text-[11px] font-mono">
+                <div>latitudCentro: <span class="text-white">-34.9214</span></div>
+                <div>longitudCentro: <span class="text-white">-57.9545</span></div>
+                <div id="map-cursor-coords" class="text-blue-400 mt-1">Cursor: -34.9214, -57.9545</div>
+              </div>
+            </div>
+
+            <!-- Lienzo del Mapa Simulado (OpenStreetMap) -->
+            <div id="map-canvas" onmousemove="updateMapCoords(event)" class="flex-1 osm-grid relative overflow-hidden select-none">
+              <!-- Etiquetas geográficas simuladas de fondo (La Plata / Arroyo El Gato) -->
+              <div class="absolute top-6 left-8 text-xs font-bold text-slate-400/80 uppercase tracking-widest pointer-events-none">Cuenca Arroyo El Gato · La Plata</div>
+              <svg class="absolute inset-0 w-full h-full pointer-events-none opacity-40">
+                <path d="M 0,120 Q 250,180 500,260 T 950,420" fill="none" stroke="#3b82f6" stroke-width="14" stroke-linecap="round" />
+                <path d="M 180,0 L 320,640" fill="none" stroke="#ffffff" stroke-width="6" />
+                <path d="M 0,380 L 900,220" fill="none" stroke="#ffffff" stroke-width="6" />
+              </svg>
+
+              <!-- Contenedor dinámico de elementos geográficos -->
+              <div id="map-elements-layer" class="absolute inset-0"></div>
+
+              <!-- Controles flotantes Zoom -->
+              <div class="absolute top-4 right-4 flex flex-col bg-white rounded-lg shadow border border-slate-200 overflow-hidden">
+                <button onclick="zoomMap(1)" class="w-8 h-8 hover:bg-slate-100 text-slate-700 font-bold border-b border-slate-200">+</button>
+                <button onclick="zoomMap(-1)" class="w-8 h-8 hover:bg-slate-100 text-slate-700 font-bold">−</button>
+              </div>
+
+              <!-- Tarjeta flotante de inspección de elemento -->
+              <div id="map-inspector" class="hidden absolute bottom-4 left-4 right-4 sm:right-auto sm:w-80 bg-white/95 backdrop-blur p-4 rounded-xl shadow-lg border border-slate-200">
+                <div class="flex items-start justify-between mb-1">
+                  <span id="insp-badge" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700">Elemento</span>
+                  <button onclick="document.getElementById('map-inspector').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 text-xs"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <h4 id="insp-title" class="font-bold text-slate-900 text-sm">Nombre Elemento</h4>
+                <p id="insp-desc" class="text-xs text-slate-600 mt-1">Detalle técnico</p>
+                <div id="insp-meta" class="mt-2 pt-2 border-t border-slate-100 text-[11px] font-mono text-slate-500"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- VISTA 2: GESTIÓN DE ZONAS DE RIESGO (MÓDULO A)                  -->
+        <!-- =============================================================== -->
+        <section id="sec-zonas" class="hidden space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Gestión de Zonas de Riesgo</h2>
+              <p class="text-xs text-slate-500">Administración de geometrías circulares (<code class="text-blue-600">ZonadeRiesgo</code>) y asociación de sensores.</p>
+            </div>
+            <button data-admin-only onclick="openModal('modal-zona')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-2 self-start sm:self-auto">
+              <i class="fa-solid fa-plus"></i> Nueva Zona de Riesgo
+            </button>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b border-slate-200">
+                <tr>
+                  <th class="py-3 px-4">Código</th>
+                  <th class="py-3 px-4">Nombre / Descripción</th>
+                  <th class="py-3 px-4">Nivel Riesgo</th>
+                  <th class="py-3 px-4">Centro (Lat, Long)</th>
+                  <th class="py-3 px-4">Diámetro / Radio</th>
+                  <th class="py-3 px-4">Sensores</th>
+                  <th class="py-3 px-4 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="zonas-tbody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- VISTA 3: GESTIÓN DE SENSORES (MÓDULO A)                         -->
+        <!-- =============================================================== -->
+        <section id="sec-sensores" class="hidden space-y-5">
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 class="text-lg font-bold text-slate-900">Monitoreo de Sensores Ambientales</h2>
+                <p class="text-xs text-slate-500">Clase <code class="text-blue-600">Sensor</code> · Filtrado mediante <code class="text-blue-600">filtrarSensores(unCodigo, unEstado)</code>.</p>
+              </div>
+              <button data-admin-only onclick="openModal('modal-sensor')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-2 self-start sm:self-auto">
+                <i class="fa-solid fa-plus"></i> Registrar Sensor
+              </button>
+            </div>
+
+            <!-- Barra de Filtros -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-slate-100">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Buscar por Código</label>
+                <input type="text" id="filter-sensor-code" oninput="renderSensoresTable()" placeholder="Ej: 101" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Estado Operativo (estadoSensor)</label>
+                <select id="filter-sensor-status" onchange="renderSensoresTable()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white">
+                  <option value="all">Todos los estados</option>
+                  <option value="activo">Activo</option>
+                  <option value="inactivo">Inactivo</option>
+                  <option value="enMantenimiento">En Mantenimiento</option>
+                  <option value="desconectado">Desconectado</option>
+                  <option value="baja">Baja</option>
+                </select>
+              </div>
+              <div class="flex items-end">
+                <button onclick="resetSensorFilters()" class="px-3 py-2 border border-slate-300 hover:bg-slate-50 text-slate-600 rounded-lg text-xs font-semibold">
+                  Limpiar Filtros
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b border-slate-200">
+                <tr>
+                  <th class="py-3 px-4">Código</th>
+                  <th class="py-3 px-4">Tipo de Sensor</th>
+                  <th class="py-3 px-4">Ubicación (Lat, Long)</th>
+                  <th class="py-3 px-4">Zona Asociada</th>
+                  <th class="py-3 px-4">Estado</th>
+                  <th class="py-3 px-4 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="sensores-tbody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- VISTA 4A: MEDICIONES Y SIMULACIÓN (MÓDULO B)                    -->
+        <!-- =============================================================== -->
+        <section id="sec-monitoreo" class="hidden space-y-6">
+          <!-- Carga Manual de Mediciones -->
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h2 class="text-lg font-bold text-slate-900">Simulación de Envío de Mediciones</h2>
+                <p class="text-xs text-slate-500">Ejecuta <code class="text-blue-600">GestorDeMonitoreo.registrarMedicionManual(sensor, valorMedicion)</code> y evalúa umbrales automáticamente.</p>
+              </div>
+              <span class="text-xs px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-medium">
+                <i class="fa-solid fa-flask mr-1"></i> Modo Simulación
+              </span>
+            </div>
+
+            <form onsubmit="handleManualMeasurement(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end pt-2">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Sensor Activo</label>
+                <select id="sim-sensor-select" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white" required></select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Valor Medido (cm / mm)</label>
+                <input id="sim-valor-input" type="number" step="0.1" placeholder="Ej: 265 (Supera umbral 250)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" required />
+              </div>
+              <div>
+                <button type="submit" class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition">
+                  <i class="fa-solid fa-paper-plane mr-1.5"></i> Registrar Medición Manual
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Historial de Mediciones -->
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-200 flex items-center justify-between">
+              <h3 class="font-bold text-slate-900">Historial de Mediciones Registradas (<code class="text-xs text-blue-600">Medicion</code>)</h3>
+              <span class="text-xs text-slate-500">Ordenadas por fecha/hora descendente</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b border-slate-200">
+                  <tr>
+                    <th class="py-3 px-4">Cód. Medición</th>
+                    <th class="py-3 px-4">Sensor</th>
+                    <th class="py-3 px-4">Valor</th>
+                    <th class="py-3 px-4">Fecha y Hora</th>
+                    <th class="py-3 px-4">Origen (esSimulada)</th>
+                  </tr>
+                </thead>
+                <tbody id="mediciones-tbody" class="divide-y divide-slate-100"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- VISTA 4B: GESTIÓN DE UMBRALES (MÓDULO B)                        -->
+        <!-- =============================================================== -->
+        <section id="sec-umbrales" class="hidden space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Configuración de Umbrales de Riesgo</h2>
+              <p class="text-xs text-slate-500">Clase <code class="text-blue-600">Umbral</code> · Parámetros límite (<code class="text-blue-600">minimo</code>, <code class="text-blue-600">maximo</code>) para disparo automático de alertas.</p>
+            </div>
+            <button data-admin-only onclick="openModal('modal-umbral')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-2 self-start sm:self-auto">
+              <i class="fa-solid fa-plus"></i> Registrar Umbral
+            </button>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b border-slate-200">
+                <tr>
+                  <th class="py-3 px-4">Código Umbral</th>
+                  <th class="py-3 px-4">Variable / Tipo Sensor</th>
+                  <th class="py-3 px-4">Valor Mínimo</th>
+                  <th class="py-3 px-4">Valor Máximo (Disparo)</th>
+                  <th class="py-3 px-4 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="umbrales-tbody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- VISTA 4C: BANDEJA DE ALERTAS (MÓDULO B)                         -->
+        <!-- =============================================================== -->
+        <section id="sec-alertas" class="hidden space-y-5">
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h2 class="text-lg font-bold text-slate-900">Gestión y Trazabilidad de Alertas</h2>
+                <p class="text-xs text-slate-500">Clase <code class="text-blue-600">Alerta</code> · Seguimiento de ciclo de vida (<code class="text-blue-600">EstAlerta</code>).</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <label class="text-xs font-semibold text-slate-600">Filtrar Estado:</label>
+                <select id="filter-alerta-status" onchange="renderAlertasTable()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs bg-white">
+                  <option value="all">Todas</option>
+                  <option value="activa">Activa</option>
+                  <option value="enAnalisis">En Análisis</option>
+                  <option value="atendida">Atendida</option>
+                  <option value="cerrada">Cerrada</option>
+                  <option value="descartada">Descartada</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b border-slate-200">
+                <tr>
+                  <th class="py-3 px-4">Código</th>
+                  <th class="py-3 px-4">Descripción</th>
+                  <th class="py-3 px-4">Zona de Riesgo</th>
+                  <th class="py-3 px-4">Nivel</th>
+                  <th class="py-3 px-4">Fecha/Hora</th>
+                  <th class="py-3 px-4">Estado (EstAlerta)</th>
+                  <th class="py-3 px-4 text-right">Cambiar Estado</th>
+                </tr>
+              </thead>
+              <tbody id="alertas-tbody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- VISTA 5: GESTIÓN DE REFUGIOS (MÓDULO A)                         -->
+        <!-- =============================================================== -->
+        <section id="sec-refugios" class="hidden space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Gestión de Refugios</h2>
+              <p class="text-xs text-slate-500">Clase <code class="text-blue-600">Refugio</code> · <strong>Nota del modelo:</strong> Los refugios son de carácter informativo y no implican gestión de evacuaciones.</p>
+            </div>
+            <button data-admin-only onclick="openModal('modal-refugio')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-2 self-start sm:self-auto">
+              <i class="fa-solid fa-plus"></i> Registrar Refugio
+            </button>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b border-slate-200">
+                <tr>
+                  <th class="py-3 px-4">Código</th>
+                  <th class="py-3 px-4">Nombre</th>
+                  <th class="py-3 px-4">Descripción</th>
+                  <th class="py-3 px-4">Ubicación (Lat, Long)</th>
+                  <th class="py-3 px-4 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="refugios-tbody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODALES (OVERLAYS PARA ALTAS Y MODIFICACIONES)                        -->
+  <!-- ===================================================================== -->
+  
+  <!-- Modal Zona de Riesgo -->
+  <div id="modal-zona" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+        <h3 class="font-bold text-slate-900">Registrar Zona de Riesgo</h3>
+        <button onclick="closeModal('modal-zona')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="saveZona(event)" class="mt-4 space-y-3 text-sm">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre de la Zona</label>
+          <input id="z-nombre" type="text" required placeholder="Ej: Cuenca Arroyo Maldonado" class="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Descripción</label>
+          <input id="z-desc" type="text" required placeholder="Área residencial baja cercana al cauce" class="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Nivel de Riesgo</label>
+            <select id="z-nivel" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white">
+              <option value="bajo">Bajo</option>
+              <option value="medio">Medio</option>
+              <option value="alto" selected>Alto</option>
+              <option value="critico">Crítico</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Diámetro (metros)</label>
+            <input id="z-diametro" type="number" required value="1200" class="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Latitud Centro</label>
+            <input id="z-lat" type="text" required value="-34.9310" class="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Longitud Centro</label>
+            <input id="z-lng" type="text" required value="-57.9420" class="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+          </div>
+        </div>
+        <div class="pt-3 flex justify-end gap-2 border-t border-slate-100">
+          <button type="button" onclick="closeModal('modal-zona')" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold">Guardar Zona</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Sensor -->
+  <div id="modal-sensor" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+        <h3 class="font-bold text-slate-900">Registrar Nuevo Sensor</h3>
+        <button onclick="closeModal('modal-sensor')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="saveSensor(event)" class="mt-4 space-y-3 text-sm">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo de Sensor</label>
+          <input id="s-tipo" type="text" required placeholder="Ej: Limnímetro Ultrasónico" class="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Estado Operativo</label>
+          <select id="s-estado" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white">
+            <option value="activo">Activo</option>
+            <option value="inactivo">Inactivo</option>
+            <option value="enMantenimiento">En Mantenimiento</option>
+            <option value="desconectado">Desconectado</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Latitud</label>
+            <input id="s-lat" type="text" required value="-34.9180" class="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Longitud</label>
+            <input id="s-lng" type="text" required value="-57.9610" class="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+          </div>
+        </div>
+        <div class="pt-3 flex justify-end gap-2 border-t border-slate-100">
+          <button type="button" onclick="closeModal('modal-sensor')" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold">Guardar Sensor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Refugio -->
+  <div id="modal-refugio" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+        <h3 class="font-bold text-slate-900">Registrar Refugio Informativo</h3>
+        <button onclick="closeModal('modal-refugio')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="saveRefugio(event)" class="mt-4 space-y-3 text-sm">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre del Refugio</label>
+          <input id="r-nombre" type="text" required placeholder="Ej: Polideportivo Municipal Los Hornos" class="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Descripción</label>
+          <input id="r-desc" type="text" required placeholder="Punto de asistencia comunitaria - Av. 66" class="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Latitud</label>
+            <input id="r-lat" type="text" required value="-34.9450" class="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Longitud</label>
+            <input id="r-lng" type="text" required value="-57.9720" class="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+          </div>
+        </div>
+        <div class="pt-3 flex justify-end gap-2 border-t border-slate-100">
+          <button type="button" onclick="closeModal('modal-refugio')" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold">Guardar Refugio</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Umbral -->
+  <div id="modal-umbral" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+        <h3 class="font-bold text-slate-900">Registrar Nuevo Umbral</h3>
+        <button onclick="closeModal('modal-umbral')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="saveUmbral(event)" class="mt-4 space-y-3 text-sm">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Variable / Tipo de Sensor</label>
+          <input id="u-tipo" type="text" required placeholder="Ej: Pluviómetro (mm/h)" class="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Valor Mínimo</label>
+            <input id="u-min" type="number" step="0.1" required value="0" class="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Valor Máximo (Alerta)</label>
+            <input id="u-max" type="number" step="0.1" required value="80" class="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+          </div>
+        </div>
+        <div class="pt-3 flex justify-end gap-2 border-t border-slate-100">
+          <button type="button" onclick="closeModal('modal-umbral')" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold">Guardar Umbral</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast de Notificación (Feedback inmediato de acciones) -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl text-xs font-medium flex items-center gap-2.5 border border-slate-700">
+    <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+    <span id="toast-msg">Operación realizada con éxito.</span>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- LÓGICA DE ESTADO Y SIMULACIÓN DEL MODELO UML (JS)                     -->
+  <!-- ===================================================================== -->
+  <script>
+    // Estado inicial alineado con las clases y enums del UML
+    const state = {
+      role: 'Operador de Defensa Civil',
+      autoJobActive: true,
+      mapZoom: 1,
+      zonas: [
+        { codZonaRiesgo: 1, nombre: 'Cuenca Arroyo El Gato', descripcion: 'Sector Ringuelet - Tolosa', nivelRiesgo: 'critico', latitud: '-34.8950', longitud: '-57.9780', diametro: 1800, x: 32, y: 34, sensores: [101, 102] },
+        { codZonaRiesgo: 2, nombre: 'Arroyo Regimiento', descripcion: 'Zona Casco Urbano Sur', nivelRiesgo: 'alto', latitud: '-34.9340', longitud: '-57.9490', diametro: 1200, x: 64, y: 58, sensores: [103] },
+        { codZonaRiesgo: 3, nombre: 'Canal Villa Elisa', descripcion: 'Zona Norte Ribereña', nivelRiesgo: 'medio', latitud: '-34.8520', longitud: '-58.0750', diametro: 900, x: 75, y: 24, sensores: [104] }
+      ],
+      sensores: [
+        { codigo: 101, tipoSensor: 'Nivel Hidrométrico (cm)', estado: 'activo', latitud: '-34.8940', longitud: '-57.9770', zona: 'Cuenca Arroyo El Gato', x: 30, y: 32 },
+        { codigo: 102, tipoSensor: 'Pluviómetro Digital (mm)', estado: 'activo', latitud: '-34.8965', longitud: '-57.9800', zona: 'Cuenca Arroyo El Gato', x: 36, y: 38 },
+        { codigo: 103, tipoSensor: 'Nivel Hidrométrico (cm)', estado: 'activo', latitud: '-34.9335', longitud: '-57.9485', zona: 'Arroyo Regimiento', x: 63, y: 56 },
+        { codigo: 104, tipoSensor: 'Caudalímetro (m³/s)', estado: 'enMantenimiento', latitud: '-34.8525', longitud: '-58.0740', zona: 'Canal Villa Elisa', x: 76, y: 25 }
+      ],
+      refugios: [
+        { codigoRefugio: 501, nombre: 'Club Atlético Ringuelet', descripcion: 'Refugio comunitario informativo - Calle 7 y 514', latitud: '-34.8910', longitud: '-57.9850', x: 24, y: 42 },
+        { codigoRefugio: 502, nombre: 'Escuela Primaria N° 19', descripcion: 'Punto de resguardo temporal - Zona Sur', latitud: '-34.9380', longitud: '-57.9410', x: 69, y: 66 }
+      ],
+      umbrales: [
+        { codUmbral: 1, variable: 'Nivel Hidrométrico (cm)', minimo: 20, maximo: 250 },
+        { codUmbral: 2, variable: 'Pluviómetro Digital (mm)', minimo: 0, maximo: 85 }
+      ],
+      mediciones: [
+        { codMedicion: 9002, sensor: 101, valor: '268 cm', fechaHora: '16/11/2026 17:45', esSimulada: true },
+        { codMedicion: 9001, sensor: 103, valor: '215 cm', fechaHora: '16/11/2026 17:30', esSimulada: true }
+      ],
+      alertas: [
+        { codigoAlerta: 301, descripcion: 'Superación umbral crítico (268 cm > 250 cm) en Sensor #101', zonaDeRiesgo: 'Cuenca Arroyo El Gato', nivelAlerta: 'critico', fechaHora: '16/11/2026 17:45', estadoAlerta: 'activa', x: 32, y: 34 },
+        { codigoAlerta: 302, descripcion: 'Crecida sostenida detectada por Sensor #103', zonaDeRiesgo: 'Arroyo Regimiento', nivelAlerta: 'alto', fechaHora: '16/11/2026 17:30', estadoAlerta: 'enAnalisis', x: 64, y: 58 }
+      ]
+    };
+
+    // --- LOGIN & ROLES ---
+    function updateLoginPreview() {
+      const role = document.getElementById('login-role').value;
+      const userInp = document.getElementById('login-user');
+      const desc = document.getElementById('role-desc');
+      if (role === 'Administrador del Sistema') {
+        userInp.value = 'admin@sigri.gob.ar';
+        desc.textContent = 'Acceso total: alta, baja y modificación de zonas, sensores, refugios y umbrales.';
+      } else if (role === 'Autoridad Municipal') {
+        userInp.value = 'intendencia@laplata.gob.ar';
+        desc.textContent = 'Perfil ejecutivo de solo lectura: consulta de mapa GIS, KPIs y reportes de alertas.';
+      } else {
+        userInp.value = 'operador@defensacivil.gob.ar';
+        desc.textContent = 'Acceso operativo: monitoreo en tiempo real, simulación de mediciones y gestión de alertas.';
+      }
+    }
+
+    function togglePass() {
+      const inp = document.getElementById('login-pass');
+      const eye = document.getElementById('pass-eye');
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        eye.classList.replace('fa-eye', 'fa-eye-slash');
+      } else {
+        inp.type = 'password';
+        eye.classList.replace('fa-eye-slash', 'fa-eye');
+      }
+    }
+
+    function simulateLoginError() {
+      document.getElementById('login-error').classList.remove('hidden');
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      document.getElementById('login-error').classList.add('hidden');
+      state.role = document.getElementById('login-role').value;
+      document.getElementById('current-role-label').textContent = state.role;
+
+      // Aplicar permisos según actor (Autoridad Municipal = solo lectura en ABMs)
+      const isReadOnly = state.role === 'Autoridad Municipal';
+      document.querySelectorAll('[data-admin-only]').forEach(el => {
+        el.style.display = isReadOnly ? 'none' : '';
+      });
+
+      document.getElementById('view-login').classList.add('hidden');
+      document.getElementById('app-shell').classList.remove('hidden');
+      refreshAll();
+      navigate('dashboard');
+      showToast(`Bienvenido, ${state.role}`);
+    }
+
+    function logout() {
+      document.getElementById('app-shell').classList.add('hidden');
+      document.getElementById('view-login').classList.remove('hidden');
+    }
+
+    // --- NAVEGACIÓN ---
+    const pageMeta = {
+      dashboard: { title: 'Panel de Control General', crumb: 'SIGRI / Vista General Operativa' },
+      mapa: { title: 'Mapa Georreferenciado Principal', crumb: 'Módulo C / MapaVisualizacionGeografica (Composite)' },
+      zonas: { title: 'Gestión de Zonas de Riesgo', crumb: 'Módulo A / GestorCapasDeRiesgo · ZonadeRiesgo' },
+      sensores: { title: 'Gestión de Sensores Ambientales', crumb: 'Módulo A / GestorCapasDeRiesgo · Sensor' },
+      refugios: { title: 'Gestión de Refugios Informativos', crumb: 'Módulo A / GestorCapasDeRiesgo · Refugio' },
+      monitoreo: { title: 'Mediciones y Simulación', crumb: 'Módulo B / GestorDeMonitoreo · Medicion' },
+      umbrales: { title: 'Configuración de Umbrales', crumb: 'Módulo B / GestorDeMonitoreo · Umbral' },
+      alertas: { title: 'Bandeja y Gestión de Alertas', crumb: 'Módulo B / GestorDeMonitoreo · Alerta' }
+    };
+
+    function navigate(viewId) {
+      document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+      document.getElementById(`sec-${viewId}`).classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.dataset.nav === viewId) {
+          btn.classList.add('bg-blue-600', 'text-white');
+          btn.classList.remove('text-slate-300', 'hover:bg-slate-800');
+        } else {
+          btn.classList.remove('bg-blue-600', 'text-white');
+          btn.classList.add('text-slate-300', 'hover:bg-slate-800');
+        }
+      });
+
+      document.getElementById('header-title').textContent = pageMeta[viewId].title;
+      document.getElementById('header-breadcrumb').textContent = pageMeta[viewId].crumb;
+
+      if (viewId === 'mapa') renderMapElements();
+
+      // Cerrar sidebar en móvil tras navegar
+      const sb = document.getElementById('sidebar');
+      if (!sb.classList.contains('-translate-x-full') && window.innerWidth < 1024) {
+        toggleMobileSidebar();
+      }
+    }
+
+    function toggleMobileSidebar() {
+      document.getElementById('sidebar').classList.toggle('-translate-x-full');
+      document.getElementById('sidebar-backdrop').classList.toggle('hidden');
+    }
+
+    // --- HELPERS VISUALES (BADGES) ---
+    function getRiskBadge(nivel) {
+      const map = {
+        critico: 'bg-red-100 text-red-700 border-red-200',
+        alto: 'bg-orange-100 text-orange-700 border-orange-200',
+        medio: 'bg-amber-100 text-amber-700 border-amber-200',
+        bajo: 'bg-emerald-100 text-emerald-700 border-emerald-200'
+      };
+      return `<span class="px-2 py-0.5 rounded-full text-xs font-semibold border capitalize ${map[nivel] || 'bg-slate-100'}">${nivel}</span>`;
+    }
+
+    function getSensorStatusBadge(estado) {
+      const map = {
+        activo: 'bg-emerald-100 text-emerald-700',
+        enMantenimiento: 'bg-amber-100 text-amber-700',
+        desconectado: 'bg-red-100 text-red-700',
+        inactivo: 'bg-slate-100 text-slate-600',
+        baja: 'bg-slate-200 text-slate-500'
+      };
+      return `<span class="px-2 py-0.5 rounded-full text-xs font-semibold ${map[estado] || ''}">${estado}</span>`;
+    }
+
+    function getAlertStatusBadge(estado) {
+      const map = {
+        activa: 'bg-red-600 text-white',
+        enAnalisis: 'bg-amber-500 text-white',
+        atendida: 'bg-blue-600 text-white',
+        cerrada: 'bg-slate-200 text-slate-700',
+        descartada: 'bg-slate-100 text-slate-500'
+      };
+      return `<span class="px-2 py-0.5 rounded-full text-xs font-semibold ${map[estado] || ''}">${estado}</span>`;
+    }
+
+    // --- RENDERIZADO DE TABLAS Y KPIS ---
+    function refreshAll() {
+      // KPIs
+      const activas = state.alertas.filter(a => a.estadoAlerta === 'activa' || a.estadoAlerta === 'enAnalisis');
+      document.getElementById('kpi-alertas-total').textContent = activas.length;
+      document.getElementById('sidebar-alert-badge').textContent = activas.length;
+      document.getElementById('header-alert-count').textContent = activas.length;
+      document.getElementById('kpi-zonas-total').textContent = state.zonas.length;
+      document.getElementById('kpi-sensores-total').textContent = state.sensores.length;
+      const sensAct = state.sensores.filter(s => s.estado === 'activo').length;
+      document.getElementById('kpi-sensores-activos').textContent = `${sensAct} Activos`;
+      document.getElementById('kpi-refugios-total').textContent = state.refugios.length;
+
+      // Dashboard Alertas
+      document.getElementById('dash-alertas-tbody').innerHTML = state.alertas.map(a => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-4 font-mono text-xs font-bold">#${a.codigoAlerta}</td>
+          <td class="py-3 px-4 font-medium text-slate-800">${a.zonaDeRiesgo}</td>
+          <td class="py-3 px-4">${getRiskBadge(a.nivelAlerta)}</td>
+          <td class="py-3 px-4 text-xs text-slate-500">${a.fechaHora}</td>
+          <td class="py-3 px-4">${getAlertStatusBadge(a.estadoAlerta)}</td>
+          <td class="py-3 px-4 text-right space-x-1">
+            <button onclick="navigate('mapa')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold">Ver Mapa</button>
+            <button onclick="navigate('alertas')" class="px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-xs font-semibold">Gestionar</button>
+          </td>
+        </tr>
+      `).join('');
+
+      // Zonas
+      document.getElementById('zonas-tbody').innerHTML = state.zonas.map(z => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-4 font-mono text-xs font-bold">#${z.codZonaRiesgo}</td>
+          <td class="py-3 px-4">
+            <div class="font-semibold text-slate-900">${z.nombre}</div>
+            <div class="text-xs text-slate-500">${z.descripcion}</div>
+          </td>
+          <td class="py-3 px-4">${getRiskBadge(z.nivelRiesgo)}</td>
+          <td class="py-3 px-4 font-mono text-xs">${z.latitud}, ${z.longitud}</td>
+          <td class="py-3 px-4 text-xs"><strong>${z.diametro}m</strong> <span class="text-slate-400">(/radio: ${z.diametro / 2}m)</span></td>
+          <td class="py-3 px-4 text-xs font-semibold text-blue-600">${z.sensores.length} asociados</td>
+          <td class="py-3 px-4 text-right">
+            <button onclick="deleteZona(${z.codZonaRiesgo})" class="text-red-600 hover:underline text-xs font-semibold">Eliminar</button>
+          </td>
+        </tr>
+      `).join('');
+
+      renderSensoresTable();
+      renderAlertasTable();
+
+      // Refugios
+      document.getElementById('refugios-tbody').innerHTML = state.refugios.map(r => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-4 font-mono text-xs font-bold">#${r.codigoRefugio}</td>
+          <td class="py-3 px-4 font-semibold text-slate-900">${r.nombre}</td>
+          <td class="py-3 px-4 text-xs text-slate-600">${r.descripcion}</td>
+          <td class="py-3 px-4 font-mono text-xs">${r.latitud}, ${r.longitud}</td>
+          <td class="py-3 px-4 text-right">
+            <button onclick="deleteRefugio(${r.codigoRefugio})" class="text-red-600 hover:underline text-xs font-semibold">Eliminar</button>
+          </td>
+        </tr>
+      `).join('');
+
+      // Umbrales
+      document.getElementById('umbrales-tbody').innerHTML = state.umbrales.map(u => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-4 font-mono text-xs font-bold">#${u.codUmbral}</td>
+          <td class="py-3 px-4 font-semibold text-slate-800">${u.variable}</td>
+          <td class="py-3 px-4 font-mono text-xs">${u.minimo}</td>
+          <td class="py-3 px-4 font-mono text-xs font-bold text-red-600">${u.maximo}</td>
+          <td class="py-3 px-4 text-right">
+            <button onclick="deleteUmbral(${u.codUmbral})" class="text-red-600 hover:underline text-xs font-semibold">Eliminar</button>
+          </td>
+        </tr>
+      `).join('');
+
+      // Mediciones y Select de simulación
+      document.getElementById('mediciones-tbody').innerHTML = state.mediciones.map(m => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-4 font-mono text-xs">#${m.codMedicion}</td>
+          <td class="py-3 px-4 font-semibold text-slate-800">Sensor #${m.sensor}</td>
+          <td class="py-3 px-4 font-bold text-blue-700">${m.valor}</td>
+          <td class="py-3 px-4 text-xs text-slate-500">${m.fechaHora}</td>
+          <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 text-xs font-medium">${m.esSimulada ? 'Simulada (true)' : 'Real'}</span></td>
+        </tr>
+      `).join('');
+
+      document.getElementById('sim-sensor-select').innerHTML = state.sensores
+        .filter(s => s.estado === 'activo')
+        .map(s => `<option value="${s.codigo}">Sensor #${s.codigo} - ${s.tipoSensor} (${s.zona})</option>`)
+        .join('');
+    }
+
+    function renderSensoresTable() {
+      const codeFilter = document.getElementById('filter-sensor-code').value.trim();
+      const statusFilter = document.getElementById('filter-sensor-status').value;
+
+      const filtered = state.sensores.filter(s => {
+        const matchCode = !codeFilter || String(s.codigo).includes(codeFilter);
+        const matchStatus = statusFilter === 'all' || s.estado === statusFilter;
+        return matchCode && matchStatus;
+      });
+
+      document.getElementById('sensores-tbody').innerHTML = filtered.map(s => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-4 font-mono text-xs font-bold">#${s.codigo}</td>
+          <td class="py-3 px-4 font-medium text-slate-800">${s.tipoSensor}</td>
+          <td class="py-3 px-4 font-mono text-xs">${s.latitud}, ${s.longitud}</td>
+          <td class="py-3 px-4 text-xs text-slate-600">${s.zona}</td>
+          <td class="py-3 px-4">${getSensorStatusBadge(s.estado)}</td>
+          <td class="py-3 px-4 text-right space-x-2">
+            <button onclick="navigate('monitoreo')" class="text-blue-600 hover:underline text-xs font-semibold">Simular</button>
+            <button onclick="deleteSensor(${s.codigo})" class="text-red-600 hover:underline text-xs font-semibold">Eliminar</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function resetSensorFilters() {
+      document.getElementById('filter-sensor-code').value = '';
+      document.getElementById('filter-sensor-status').value = 'all';
+      renderSensoresTable();
+    }
+
+    function renderAlertasTable() {
+      const statusFilter = document.getElementById('filter-alerta-status').value;
+      const filtered = state.alertas.filter(a => statusFilter === 'all' || a.estadoAlerta === statusFilter);
+
+      document.getElementById('alertas-tbody').innerHTML = filtered.map(a => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-4 font-mono text-xs font-bold">#${a.codigoAlerta}</td>
+          <td class="py-3 px-4 text-xs text-slate-800 max-w-xs">${a.descripcion}</td>
+          <td class="py-3 px-4 font-medium text-xs">${a.zonaDeRiesgo}</td>
+          <td class="py-3 px-4">${getRiskBadge(a.nivelAlerta)}</td>
+          <td class="py-3 px-4 text-xs text-slate-500">${a.fechaHora}</td>
+          <td class="py-3 px-4">${getAlertStatusBadge(a.estadoAlerta)}</td>
+          <td class="py-3 px-4 text-right">
+            <select onchange="changeAlertStatus(${a.codigoAlerta}, this.value)" class="text-xs border border-slate-300 rounded px-2 py-1 bg-white">
+              <option value="activa" ${a.estadoAlerta === 'activa' ? 'selected' : ''}>Activa</option>
+              <option value="enAnalisis" ${a.estadoAlerta === 'enAnalisis' ? 'selected' : ''}>En Análisis</option>
+              <option value="atendida" ${a.estadoAlerta === 'atendida' ? 'selected' : ''}>Atendida</option>
+              <option value="cerrada" ${a.estadoAlerta === 'cerrada' ? 'selected' : ''}>Cerrada</option>
+              <option value="descartada" ${a.estadoAlerta === 'descartada' ? 'selected' : ''}>Descartada</option>
+            </select>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // --- MAPA GIS (MÓDULO C - COMPOSITE) ---
+    function renderMapElements() {
+      const layer = document.getElementById('map-elements-layer');
+      const showZonas = document.getElementById('layer-zonas').checked;
+      const showSensores = document.getElementById('layer-sensores').checked;
+      const showAlertas = document.getElementById('layer-alertas').checked;
+      const showRefugios = document.getElementById('layer-refugios').checked;
+
+      const fZona = document.getElementById('map-filter-zona').value;
+      const fSensor = document.getElementById('map-filter-sensor').value;
+      const fAlerta = document.getElementById('map-filter-alerta').value;
+
+      let html = '';
+
+      // 1. Zonas circulares
+      if (showZonas) {
+        state.zonas
+          .filter(z => fZona === 'all' || z.nivelRiesgo === fZona)
+          .forEach(z => {
+            const color = z.nivelRiesgo === 'critico' ? 'border-red-500 bg-red-500/20' :
+                          z.nivelRiesgo === 'alto' ? 'border-orange-500 bg-orange-500/20' : 'border-amber-500 bg-amber-500/20';
+            const size = Math.max(80, Math.min(180, z.diametro / 10));
+            html += `
+              <div onclick="inspectElement('Zona de Riesgo #${z.codZonaRiesgo}', '${z.nombre}', '${z.descripcion} · Nivel: ${z.nivelRiesgo.toUpperCase()}', 'Centro: ${z.latitud}, ${z.longitud} | Radio: ${z.diametro/2}m')"
+                style="left: ${z.x}%; top: ${z.y}%; width: ${size}px; height: ${size}px;"
+                class="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-2 ${color} cursor-pointer hover:opacity-90 transition flex items-end justify-center pb-1">
+                <span class="text-[10px] font-bold bg-white/90 px-1.5 rounded text-slate-800 shadow-sm">${z.nombre}</span>
+              </div>
+            `;
+          });
+      }
+
+      // 2. Sensores
+      if (showSensores) {
+        state.sensores
+          .filter(s => fSensor === 'all' || s.estado === fSensor)
+          .forEach(s => {
+            const bg = s.estado === 'activo' ? 'bg-emerald-600' : 'bg-amber-500';
+            html += `
+              <button onclick="inspectElement('Sensor #${s.codigo}', '${s.tipoSensor}', 'Estado operativo: ${s.estado} · Zona: ${s.zona}', 'Coord: ${s.latitud}, ${s.longitud}')"
+                style="left: ${s.x}%; top: ${s.y}%;"
+                class="absolute -translate-x-1/2 -translate-y-1/2 w-7 h-7 rounded-full ${bg} text-white text-xs flex items-center justify-center shadow-md border-2 border-white hover:scale-110 transition z-10">
+                <i class="fa-solid fa-tower-broadcast"></i>
+              </button>
+            `;
+          });
+      }
+
+      // 3. Refugios
+      if (showRefugios) {
+        state.refugios.forEach(r => {
+          html += `
+            <button onclick="inspectElement('Refugio Informativo #${r.codigoRefugio}', '${r.nombre}', '${r.descripcion}', 'Coord: ${r.latitud}, ${r.longitud}')"
+              style="left: ${r.x}%; top: ${r.y}%;"
+              class="absolute -translate-x-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-indigo-600 text-white text-xs flex items-center justify-center shadow-md border-2 border-white hover:scale-110 transition z-10">
+              <i class="fa-solid fa-house-medical"></i>
+            </button>
+          `;
+        });
+      }
+
+      // 4. Alertas
+      if (showAlertas) {
+        state.alertas
+          .filter(a => fAlerta === 'all' || a.estadoAlerta === fAlerta)
+          .forEach(a => {
+            html += `
+              <button onclick="inspectElement('Alerta #${a.codigoAlerta} (${a.estadoAlerta})', '${a.zonaDeRiesgo}', '${a.descripcion}', 'Generada: ${a.fechaHora}')"
+                style="left: ${a.x + 3}%; top: ${a.y - 4}%;"
+                class="absolute -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-red-600 text-white text-xs flex items-center justify-center shadow-lg border-2 border-white animate-bounce z-20">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              </button>
+            `;
+          });
+      }
+
+      layer.innerHTML = html;
+    }
+
+    function toggleRefugiosBtn() {
+      const cb = document.getElementById('layer-refugios');
+      cb.checked = !cb.checked;
+      renderMapElements();
+      showToast(`Capa Refugios: ${cb.checked ? 'Visible' : 'Oculta'}`);
+    }
+
+    function inspectElement(badge, title, desc, meta) {
+      document.getElementById('insp-badge').textContent = badge;
+      document.getElementById('insp-title').textContent = title;
+      document.getElementById('insp-desc').textContent = desc;
+      document.getElementById('insp-meta').textContent = meta;
+      document.getElementById('map-inspector').classList.remove('hidden');
+    }
+
+    function updateMapCoords(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const relX = (e.clientX - rect.left) / rect.width;
+      const relY = (e.clientY - rect.top) / rect.height;
+      const lat = (-34.85 - relY * 0.12).toFixed(4);
+      const lng = (-58.05 + relX * 0.15).toFixed(4);
+      document.getElementById('map-cursor-coords').textContent = `Cursor: ${lat}, ${lng}`;
+    }
+
+    function zoomMap(dir) {
+      state.mapZoom = Math.max(0.8, Math.min(1.4, state.mapZoom + dir * 0.15));
+      document.getElementById('map-elements-layer').style.transform = `scale(${state.mapZoom})`;
+    }
+
+    // --- OPERACIONES DE NEGOCIO (SIMULACIÓN Y ABMS) ---
+    function handleManualMeasurement(e) {
+      e.preventDefault();
+      const sensorCode = parseInt(document.getElementById('sim-sensor-select').value);
+      const val = parseFloat(document.getElementById('sim-valor-input').value);
+      const sensor = state.sensores.find(s => s.codigo === sensorCode);
+      const now = '16/11/2026 17:52';
+
+      state.mediciones.unshift({
+        codMedicion: Math.floor(9003 + Math.random() * 900),
+        sensor: sensorCode,
+        valor: `${val} cm`,
+        fechaHora: now,
+        esSimulada: true
+      });
+
+      // Evaluar umbral máximo (250)
+      if (val > 250) {
+        const newAlert = {
+          codigoAlerta: Math.floor(303 + Math.random() * 90),
+          descripcion: `Umbral excedido (${val} > 250) reportado por Sensor #${sensorCode}`,
+          zonaDeRiesgo: sensor ? sensor.zona : 'Cuenca Arroyo El Gato',
+          nivelAlerta: 'critico',
+          fechaHora: now,
+          estadoAlerta: 'activa',
+          x: sensor ? sensor.x : 40,
+          y: sensor ? sensor.y : 40
+        };
+        state.alertas.unshift(newAlert);
+        showToast(`¡ALERTA GENERADA! Valor ${val} superó el umbral máximo.`, true);
+      } else {
+        showToast(`Medición simulada (${val}) registrada dentro de parámetros normales.`);
+      }
+
+      document.getElementById('sim-valor-input').value = '';
+      refreshAll();
+    }
+
+    function changeAlertStatus(cod, newStatus) {
+      const al = state.alertas.find(a => a.codigoAlerta === cod);
+      if (al) {
+        al.estadoAlerta = newStatus;
+        refreshAll();
+        showToast(`Alerta #${cod} actualizada a estado: ${newStatus}`);
+      }
+    }
+
+    function toggleAutoJob() {
+      state.autoJobActive = !state.autoJobActive;
+      const btn = document.getElementById('job-status-btn');
+      const dot = document.getElementById('job-dot');
+      const txt = document.getElementById('job-text');
+      if (state.autoJobActive) {
+        btn.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 transition';
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-ping';
+        txt.textContent = 'Simulación Automática: Activa';
+        showToast('Job automático de simulación activado');
+      } else {
+        btn.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-300 text-slate-600 text-xs font-semibold hover:bg-slate-200 transition';
+        dot.className = 'w-2 h-2 rounded-full bg-slate-400';
+        txt.textContent = 'Simulación Automática: Pausada';
+        showToast('Job automático de simulación pausado');
+      }
+    }
+
+    // --- MODALES & CRUD ---
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    function saveZona(e) {
+      e.preventDefault();
+      state.zonas.push({
+        codZonaRiesgo: state.zonas.length + 1,
+        nombre: document.getElementById('z-nombre').value,
+        descripcion: document.getElementById('z-desc').value,
+        nivelRiesgo: document.getElementById('z-nivel').value,
+        latitud: document.getElementById('z-lat').value,
+        longitud: document.getElementById('z-lng').value,
+        diametro: parseFloat(document.getElementById('z-diametro').value),
+        x: 48, y: 48, sensores: []
+      });
+      closeModal('modal-zona');
+      refreshAll();
+      showToast('Zona de riesgo registrada correctamente');
+    }
+    function deleteZona(cod) {
+      state.zonas = state.zonas.filter(z => z.codZonaRiesgo !== cod);
+      refreshAll();
+      showToast('Zona eliminada');
+    }
+
+    function saveSensor(e) {
+      e.preventDefault();
+      state.sensores.push({
+        codigo: 100 + state.sensores.length + 1,
+        tipoSensor: document.getElementById('s-tipo').value,
+        estado: document.getElementById('s-estado').value,
+        latitud: document.getElementById('s-lat').value,
+        longitud: document.getElementById('s-lng').value,
+        zona: 'Cuenca Arroyo El Gato',
+        x: 52, y: 44
+      });
+      closeModal('modal-sensor');
+      refreshAll();
+      showToast('Sensor registrado correctamente');
+    }
+    function deleteSensor(cod) {
+      state.sensores = state.sensores.filter(s => s.codigo !== cod);
+      refreshAll();
+      showToast('Sensor eliminado');
+    }
+
+    function saveRefugio(e) {
+      e.preventDefault();
+      state.refugios.push({
+        codigoRefugio: 500 + state.refugios.length + 1,
+        nombre: document.getElementById('r-nombre').value,
+        descripcion: document.getElementById('r-desc').value,
+        latitud: document.getElementById('r-lat').value,
+        longitud: document.getElementById('r-lng').value,
+        x: 42, y: 62
+      });
+      closeModal('modal-refugio');
+      refreshAll();
+      showToast('Refugio informativo registrado');
+    }
+    function deleteRefugio(cod) {
+      state.refugios = state.refugios.filter(r => r.codigoRefugio !== cod);
+      refreshAll();
+      showToast('Refugio eliminado');
+    }
+
+    function saveUmbral(e) {
+      e.preventDefault();
+      state.umbrales.push({
+        codUmbral: state.umbrales.length + 1,
+        variable: document.getElementById('u-tipo').value,
+        minimo: parseFloat(document.getElementById('u-min').value),
+        maximo: parseFloat(document.getElementById('u-max').value)
+      });
+      closeModal('modal-umbral');
+      refreshAll();
+      showToast('Umbral configurado correctamente');
+    }
+    function deleteUmbral(cod) {
+      state.umbrales = state.umbrales.filter(u => u.codUmbral !== cod);
+      refreshAll();
+      showToast('Umbral eliminado');
+    }
+
+    function showToast(msg, isAlert = false) {
+      const toast = document.getElementById('toast');
+      const icon = document.getElementById('toast-icon');
+      document.getElementById('toast-msg').textContent = msg;
+      icon.className = isAlert
+        ? 'fa-solid fa-triangle-exclamation text-red-400 text-base'
+        : 'fa-solid fa-circle-check text-emerald-400 text-base';
+      toast.classList.remove('hidden');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => toast.classList.add('hidden'), 3500);
+    }
+  </script>
+</body>
+</html>
