@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIGRI · Historial de Versiones y Prototipos (Grupo 01)</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- Toast de notificación para acciones de copia -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl text-xs font-medium flex items-center gap-2.5 border border-slate-700">
+    <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+    <span id="toast-msg">Enlace copiado al portapapeles.</span>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- ENCABEZADO INSTITUCIONAL (HERO)                                       -->
+  <!-- ===================================================================== -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-15 pointer-events-none" style="background-image: radial-gradient(#38bdf8 1px, transparent 1px); background-size: 24px 24px;"></div>
+    
+    <div class="max-w-7xl mx-auto px-5 sm:px-8 py-10 lg:py-14 relative z-10">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+        <div class="space-y-4 max-w-3xl">
+          <div class="flex flex-wrap items-center gap-2.5 text-xs">
+            <span class="px-3 py-1 rounded-full bg-blue-600/20 border border-blue-400/30 text-blue-300 font-semibold">
+              UTN FRLP · Diseño de Sistemas de Información
+            </span>
+            <span class="px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-300 font-medium">
+              Trabajo Práctico de Campo · Grupo 01
+            </span>
+          </div>
+
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-2xl font-bold shadow-lg shadow-blue-600/30 shrink-0">
+              <i class="fa-solid fa-water"></i>
+            </div>
+            <div>
+              <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
+                SIGRI — Prototipo Interactivo
+              </h1>
+              <p class="text-sm sm:text-base text-slate-300 mt-1">
+                Sistema de Gestión de Riesgo de Inundaciones con Integración GIS · Cuenca Arroyo del Gato
+              </p>
+            </div>
+          </div>
+
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Repositorio de entregas e iteraciones funcionales del prototipo de interfaz gráfica de usuario. Seleccioná cualquiera de las versiones desplegadas para navegar la aplicación o revisá el registro detallado de evolución técnica y funcional.
+          </p>
+        </div>
+
+        <!-- Acceso Directo Destacado a la Versión Final (v1) -->
+        <div class="bg-slate-800/80 backdrop-blur-xs border border-slate-700 p-5 rounded-2xl lg:w-80 shrink-0 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Versión Final
+            </span>
+            <span class="font-mono text-xs text-slate-400">v1.0</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Incluye control de roles por actor, job automático configurable (1200s), filtros avanzados, paginado y vista móvil GIS corregida.
+          </p>
+          <a href="./prototipo_interactivo_sigri_v1.html" target="_blank" rel="noopener noreferrer"
+             class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-md transition flex items-center justify-center gap-2">
+            <span>Abrir Prototipo v1</span>
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- CONTENIDO PRINCIPAL                                                   -->
+  <!-- ===================================================================== -->
+  <main class="max-w-7xl mx-auto px-5 sm:px-8 py-8 lg:py-10 space-y-10">
+
+    <!-- SECCIÓN 1: TARJETAS DE ACCESO A LAS 4 VERSIONES HOSTED -->
+    <section class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Versiones Desplegadas</h2>
+          <p class="text-xs text-slate-500">Hacé clic en cualquier versión para abrirla en una pestaña nueva y comparar la evolución de la interfaz.</p>
+        </div>
+        <span class="text-xs text-slate-500 font-medium">4 builds disponibles en el repositorio</span>
+      </div>
+
+      <div id="version-cards-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+        <!-- Renderizado dinámico mediante JS -->
+      </div>
+    </section>
+
+    <!-- SECCIÓN 2: REGISTRO DETALLADO DE CAMBIOS (CHANGELOG + DIFERENCIAS DETECTADAS) -->
+    <section class="space-y-5">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Registro Detallado de Cambios (Changelog)</h2>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Consolidación de los cambios documentados en el proyecto junto con las diferencias técnicas y estructurales detectadas entre archivos.
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <!-- Ordenar cronológicamente -->
+            <button id="sort-order-btn" onclick="toggleSortOrder()" class="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold flex items-center gap-2 transition">
+              <i class="fa-solid fa-arrow-down-wide-short text-blue-600"></i>
+              <span id="sort-order-label">Más reciente primero (v1 → v0)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Barra de búsqueda y filtro por categoría -->
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-3 border-t border-slate-100">
+          <div class="sm:col-span-6 lg:col-span-7 relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+              <i class="fa-solid fa-magnifying-glass text-xs"></i>
+            </span>
+            <input type="text" id="changelog-search" oninput="renderChangelog()"
+                   placeholder="Buscar cambio (ej: Arroyo del Gato, roles, paginado, umbrales, mobile...)"
+                   class="w-full pl-9 pr-3.5 py-2 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-600" />
+          </div>
+          <div class="sm:col-span-6 lg:col-span-5 flex flex-wrap gap-1.5 items-center">
+            <button onclick="setCategoryFilter('all')" data-cat="all" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-600 text-white transition">Todos</button>
+            <button onclick="setCategoryFilter('gis')" data-cat="gis" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Mapa GIS</button>
+            <button onclick="setCategoryFilter('funcional')" data-cat="funcional" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Funcional</button>
+            <button onclick="setCategoryFilter('ui')" data-cat="ui" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">UI / UX</button>
+            <button onclick="setCategoryFilter('tecnico')" data-cat="tecnico" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Diff Técnico</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Listado de versiones y cambios -->
+      <div id="changelog-list" class="space-y-6">
+        <!-- Renderizado dinámico mediante JS -->
+      </div>
+    </section>
+
+    <!-- SECCIÓN 3: MATRIZ COMPARATIVA ENTRE VERSIONES -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-slate-200">
+        <h2 class="text-lg font-bold text-slate-900">Matriz Comparativa de Evolución</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Resumen rápido de características presentes en cada archivo HTML del repositorio.</p>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs sm:text-sm border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              <th class="py-3.5 px-4">Característica / Módulo</th>
+              <th class="py-3.5 px-4 text-center">v0 (Base)</th>
+              <th class="py-3.5 px-4 text-center">v0.1</th>
+              <th class="py-3.5 px-4 text-center">v0.2</th>
+              <th class="py-3.5 px-4 text-center bg-blue-50/70 text-blue-800">v1 (Final)</th>
+            </tr>
+          </thead>
+          <tbody id="matrix-tbody" class="divide-y divide-slate-100">
+            <!-- Renderizado dinámico mediante JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- PIE DE PÁGINA                                                         -->
+  <!-- ===================================================================== -->
+  <footer class="border-t border-slate-200 bg-white mt-12">
+    <div class="max-w-7xl mx-auto px-5 sm:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+      <div>
+        <strong class="text-slate-800">SIGRI</strong> — Sistema de Gestión de Riesgo de Inundaciones con Integración GIS
+      </div>
+      <div>
+        Cátedra: Diseño de Sistemas de Información · UTN FRLP · Grupo 01
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- DATOS DEL CHANGELOG Y LÓGICA DE INTERFAZ                              -->
+  <!-- ===================================================================== -->
+  <script>
+    // Definición estructurada de las 4 versiones del repositorio y todas sus diferencias
+    const versionsData = [
+      {
+        id: 'v0',
+        version: 'v0.0',
+        title: 'Prototipo Base Inicial',
+        file: 'prototipo_interactivo_sigri_v0.html',
+        badge: 'Base UML',
+        badgeClass: 'bg-slate-100 text-slate-700 border-slate-200',
+        isFinal: false,
+        summary: 'Primera maqueta interactiva generada directamente desde el modelo de clases PlantUML y la especificación funcional.',
+        changes: [
+          { cat: 'funcional', text: 'Estructura multipantalla inicial: Login con selección de 3 actores (Operador de Defensa Civil, Administrador del Sistema y Autoridad Municipal), Dashboard, Mapa GIS, Zonas de Riesgo, Sensores, Refugios y Monitoreo/Alertas.' },
+          { cat: 'gis', text: 'Integración de mapa interactivo con Leaflet sobre cartografía base de OpenStreetMap centrada en el casco urbano de La Plata.' },
+          { cat: 'funcional', text: 'Implementación en memoria de las entidades principales (ZonadeRiesgo, Sensor, Refugio, Umbral, Medicion, Alerta) con cálculo automático de radio (/radio = diametro / 2).' },
+          { cat: 'ui', text: 'Gráfico de evolución hidrométrica en Dashboard mediante Chart.js y simulación automática periódica cada 12 segundos.' },
+          { cat: 'tecnico', text: 'Diferencia estructural respecto a versiones posteriores: conservaba etiquetas técnicas del diseño en la interfaz (ej. "Mód. C", "Módulo A", "Composite", firmas de métodos como filtrarZonasDeRiesgo(Todas)) y solo permitía alta y baja sin edición de registros.' }
+        ]
+      },
+      {
+        id: 'v0.1',
+        version: 'v0.1',
+        title: 'Enfoque Usuario Final y ABM Completos',
+        file: 'prototipo_interactivo_sigri_v0.1.html',
+        badge: 'Iteración 1',
+        badgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
+        isFinal: false,
+        summary: 'Transformación hacia una interfaz limpia orientada al usuario final, integración de Google Maps sobre Arroyo del Gato y edición completa.',
+        changes: [
+          { cat: 'ui', text: 'Eliminación completa de referencias técnicas al proceso de diseño, nombres de paquetes (Módulo A/B/C), clases UML y patrones (Composite) en menús, subtítulos y filtros.' },
+          { cat: 'gis', text: 'Sustitución de OpenStreetMap por cartografía base de Google Maps enfocada en la cuenca del Arroyo del Gato (La Plata) con trazado del cauce.' },
+          { cat: 'gis', text: 'Estandarización de los selectores de filtros del mapa a "Todas" / "Todos" por defecto y eliminación del botón redundante en la capa Refugios.' },
+          { cat: 'gis', text: 'Diferenciación cromática de marcadores de alertas en el mapa según su estado operativo: Activa (rojo), En Análisis (ámbar), Atendida (azul) y Cerrada/Descartada (gris).' },
+          { cat: 'funcional', text: 'Incorporación de modales de Edición y acciones de Eliminación en Zonas de Riesgo, Sensores, Refugios, Mediciones y Umbrales, unificando los botones de alta bajo el criterio "Registrar...".' },
+          { cat: 'tecnico', text: 'Diferencia estructural: se modeló la relación 1 a 1 entre Umbral y Zona de Riesgo mediante selector obligatorio en el alta/edición y filtro superior por zona en la tabla de umbrales.' }
+        ]
+      },
+      {
+        id: 'v0.2',
+        version: 'v0.2',
+        title: 'Georreferenciación Precisa y Estadísticas',
+        file: 'prototipo_interactivo_sigri_v0.2.html',
+        badge: 'Iteración 2',
+        badgeClass: 'bg-indigo-50 text-indigo-800 border-indigo-200',
+        isFinal: false,
+        summary: 'Corrección geográfica del Arroyo del Gato, selectores dinámicos, sidebar colapsable en escritorio y nuevo módulo de Estadísticas.',
+        changes: [
+          { cat: 'gis', text: 'Corrección de la polilínea del Arroyo del Gato y desplazamiento al noroeste de zonas, sensores y refugios para coincidir con el cauce real (Melchor Romero / Av. 520, San Carlos, Estadio Único, Ringuelet / Av. 7 y 514 hasta Río Santiago).' },
+          { cat: 'funcional', text: 'Reemplazo del campo de texto libre por un selector desplegable (<select>) para el Tipo de Sensor, y filtrado dinámico en Umbrales para listar únicamente los tipos de sensores registrados en la zona elegida.' },
+          { cat: 'funcional', text: 'Restricción operativa en Sensores: el atajo "Simular" queda habilitado únicamente para dispositivos en estado "Activo".' },
+          { cat: 'funcional', text: 'Incorporación de la nueva sección "Estadísticas" dentro de Monitoreo con tarjetas de indicadores y gráficos dinámicos (Chart.js) que se recalculan según la Zona de Riesgo seleccionada.' },
+          { cat: 'ui', text: 'Sidebar colapsable en vista desktop con botón integrado a la derecha del logo SIGRI, ocultando la marca al contraerse y manteniendo alineados los íconos de navegación.' },
+          { cat: 'ui', text: 'Refinamiento de la pantalla de Login (eliminación de descripciones bajo el selector de rol, visualización real de caracteres en contraseña, subtítulo limpio y borde punteado en botón de demo) y reubicación de Accesos Directos sobre el mapa en el Dashboard.' },
+          { cat: 'tecnico', text: 'Diferencia visual: incorporación de whitespace-nowrap en etiquetas de estado de alertas y sensores para evitar saltos de línea o cortes en tablas.' }
+        ]
+      },
+      {
+        id: 'v1',
+        version: 'v1.0',
+        title: 'Roles, Paginado y Optimización Responsive',
+        file: 'prototipo_interactivo_sigri_v1.html',
+        badge: 'Versión Final',
+        badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        isFinal: true,
+        summary: 'Versión consolidada con permisos reales por rol, configuración de job automático (1200s), filtrado por fecha/hora, paginado y soporte móvil GIS.',
+        changes: [
+          { cat: 'funcional', text: 'Implementación efectiva de restricciones funcionales según el actor seleccionado en el Login: Administrador del Sistema (acceso total), Operador de Defensa Civil (gestión de alertas y simulación manual; infraestructura en solo consulta) y Autoridad Municipal (modo solo lectura).' },
+          { cat: 'funcional', text: 'Nuevo panel de configuración del Proceso de Simulación Automática (Job Programado) con frecuencia predeterminada de 1200 segundos (20 min), rangos configurables por tipo de sensor y ejecución manual de ciclo.' },
+          { cat: 'funcional', text: 'Filtrado avanzado en el Historial de Mediciones por Sensor, Zona de Riesgo y Período de Tiempo con fecha y hora exacta (datetime-local).' },
+          { cat: 'ui', text: 'Implementación de paginado interactivo de 10 ítems por página en la Bandeja Prioritaria del Dashboard, el listado general de Alertas y el Historial de Mediciones.' },
+          { cat: 'gis', text: 'Corrección integral de la vista móvil del Mapa GIS (altura mínima garantizada y panel de capas colapsable mediante botón "Mostrar/Ocultar Capas") y ajuste del mini-mapa del Dashboard.' },
+          { cat: 'tecnico', text: 'Diferencias de acabado: sidebar fijado a altura máxima de pantalla (100vh sticky) para evitar estiramiento en listas largas, eliminación del parpadeo en el indicador de Simulación Automática (oculto para Autoridad Municipal) y ocultamiento automático de badges rojos de alertas cuando el contador es 0.' }
+        ]
+      }
+    ];
+
+    // Matriz comparativa de capacidades entre versiones
+    const comparisonMatrix = [
+      { feature: 'Cartografía Base del Mapa GIS', v0: 'OpenStreetMap', v01: 'Google Maps', v02: 'Google Maps', v1: 'Google Maps' },
+      { feature: 'Trazado real Arroyo del Gato (La Plata)', v0: false, v01: 'Aproximado', v02: 'Exacto', v1: 'Exacto' },
+      { feature: 'Interfaz limpia sin referencias UML/Patrones', v0: false, v01: true, v02: true, v1: true },
+      { feature: 'Alta, Edición y Eliminación completa (ABMs)', v0: 'Solo Alta/Baja', v01: true, v02: true, v1: true },
+      { feature: 'Relación 1..1 Umbral–Zona con selector dinámico', v0: false, v01: 'Selector Zona', v02: 'Zona + Tipo Sensor', v1: 'Zona + Tipo Sensor' },
+      { feature: 'Panel de Estadísticas dinámicas por Zona', v0: false, v01: false, v02: true, v1: true },
+      { feature: 'Sidebar colapsable en Desktop (100vh)', v0: false, v01: false, v02: 'Colapsable', v1: 'Colapsable + 100vh' },
+      { feature: 'Limitaciones funcionales por Rol de usuario', v0: 'Parcial', v01: 'Parcial', v02: 'Parcial', v1: 'Completo (3 roles)' },
+      { feature: 'Configuración de Job Automático (1200s)', v0: 'Fijo 12s', v01: 'Fijo 10s', v02: 'Configurable 10s', v1: 'Configurable 1200s' },
+      { feature: 'Filtro de Mediciones por Sensor, Zona y Fecha/Hora', v0: false, v01: false, v02: false, v1: true },
+      { feature: 'Paginado de 10 ítems en Alertas y Mediciones', v0: false, v01: false, v02: false, v1: true },
+      { feature: 'Vista móvil optimizada en Mapa GIS y Dashboard', v0: 'Básico', v01: 'Básico', v02: 'Básico', v1: 'Capas plegables + GIS' }
+    ];
+
+    let sortDescending = true; // v1 -> v0 por defecto
+    let activeCategory = 'all';
+
+    // Renderizar tarjetas de acceso a las 4 versiones
+    function renderVersionCards() {
+      const grid = document.getElementById('version-cards-grid');
+      grid.innerHTML = versionsData.map(v => {
+        const cardBorder = v.isFinal
+          ? 'border-blue-600 ring-2 ring-blue-600/15 bg-white'
+          : 'border-slate-200 bg-white hover:border-slate-300';
+        const btnStyle = v.isFinal
+          ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
+          : 'bg-slate-900 hover:bg-slate-800 text-white';
+
+        return `
+          <article class="rounded-2xl border p-5 shadow-sm flex flex-col justify-between transition ${cardBorder}">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-mono text-sm font-extrabold text-slate-900">${v.version}</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${v.badgeClass}">
+                  ${v.badge}
+                </span>
+              </div>
+
+              <div>
+                <h3 class="font-bold text-base text-slate-900 leading-snug">${v.title}</h3>
+                <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">${v.summary}</p>
+              </div>
+
+              <div class="pt-1">
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-mono text-slate-500 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/80 max-w-full truncate" title="${v.file}">
+                  <i class="fa-regular fa-file-code text-blue-600"></i>
+                  <span class="truncate">${v.file}</span>
+                </span>
+              </div>
+            </div>
+
+            <div class="pt-5 mt-4 border-t border-slate-100 flex items-center gap-2">
+              <a href="./${v.file}" target="_blank" rel="noopener noreferrer"
+                 class="flex-1 py-2.5 px-3 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 ${btnStyle}">
+                <span>Abrir ${v.id}</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
+              </a>
+              <button type="button" onclick="copyRelativeUrl('${v.file}')" title="Copiar enlace de esta versión"
+                      class="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs transition">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    // Obtener etiqueta visual por categoría de cambio
+    function getCategoryPill(cat) {
+      const styles = {
+        gis: { label: 'Mapa GIS', cls: 'bg-sky-50 text-sky-700 border-sky-200' },
+        funcional: { label: 'Funcional', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+        ui: { label: 'UI / UX', cls: 'bg-purple-50 text-purple-700 border-purple-200' },
+        tecnico: { label: 'Diff Técnico', cls: 'bg-amber-50 text-amber-800 border-amber-200' }
+      };
+      const item = styles[cat] || styles.funcional;
+      return `<span class="inline-block whitespace-nowrap px-2 py-0.5 rounded-md border text-[11px] font-semibold ${item.cls}">${item.label}</span>`;
+    }
+
+    // Renderizar listado de changelog filtrado y ordenado
+    function renderChangelog() {
+      const searchQuery = document.getElementById('changelog-search').value.trim().toLowerCase();
+      const ordered = sortDescending ? [...versionsData].reverse() : [...versionsData];
+      const container = document.getElementById('changelog-list');
+
+      const blocks = ordered.map(v => {
+        const filteredChanges = v.changes.filter(ch => {
+          const matchCat = activeCategory === 'all' || ch.cat === activeCategory;
+          const matchText = !searchQuery ||
+            ch.text.toLowerCase().includes(searchQuery) ||
+            v.title.toLowerCase().includes(searchQuery) ||
+            v.version.toLowerCase().includes(searchQuery);
+          return matchCat && matchText;
+        });
+
+        if (filteredChanges.length === 0) return '';
+
+        return `
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-5 bg-slate-50/70 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div class="flex flex-wrap items-center gap-2.5">
+                <span class="px-3 py-1 rounded-xl bg-slate-900 text-white font-mono text-xs font-bold">${v.version}</span>
+                <h3 class="font-bold text-base text-slate-900">${v.title}</h3>
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${v.badgeClass}">${v.badge}</span>
+              </div>
+              <a href="./${v.file}" target="_blank" rel="noopener noreferrer"
+                 class="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1.5 self-start sm:self-auto">
+                <span>Probar esta versión</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
+              </a>
+            </div>
+            <ul class="divide-y divide-slate-100">
+              ${filteredChanges.map(ch => `
+                <li class="p-4 sm:px-5 flex flex-col sm:flex-row sm:items-start gap-2.5 text-sm">
+                  <div class="shrink-0 pt-0.5">${getCategoryPill(ch.cat)}</div>
+                  <p class="text-slate-700 text-xs sm:text-sm leading-relaxed">${ch.text}</p>
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+        `;
+      }).filter(Boolean);
+
+      if (blocks.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white rounded-2xl border border-slate-200 p-8 text-center text-xs text-slate-500">
+            No se encontraron cambios que coincidan con los filtros aplicados.
+          </div>
+        `;
+      } else {
+        container.innerHTML = blocks.join('');
+      }
+    }
+
+    function setCategoryFilter(cat) {
+      activeCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        if (btn.dataset.cat === cat) {
+          btn.className = 'cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-600 text-white transition';
+        } else {
+          btn.className = 'cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition';
+        }
+      });
+      renderChangelog();
+    }
+
+    function toggleSortOrder() {
+      sortDescending = !sortDescending;
+      document.getElementById('sort-order-label').textContent = sortDescending
+        ? 'Más reciente primero (v1 → v0)'
+        : 'Cronológico inicial (v0 → v1)';
+      renderChangelog();
+    }
+
+    // Renderizar celda de matriz comparativa
+    function formatMatrixCell(val) {
+      if (val === true) return '<i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>';
+      if (val === false) return '<i class="fa-solid fa-minus text-slate-300"></i>';
+      return `<span class="text-xs font-medium text-slate-700">${val}</span>`;
+    }
+
+    function renderComparisonMatrix() {
+      const tbody = document.getElementById('matrix-tbody');
+      tbody.innerHTML = comparisonMatrix.map(row => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-4 font-medium text-slate-800">${row.feature}</td>
+          <td class="py-3 px-4 text-center">${formatMatrixCell(row.v0)}</td>
+          <td class="py-3 px-4 text-center">${formatMatrixCell(row.v01)}</td>
+          <td class="py-3 px-4 text-center">${formatMatrixCell(row.v02)}</td>
+          <td class="py-3 px-4 text-center bg-blue-50/40 font-semibold">${formatMatrixCell(row.v1)}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Copiar URL relativa/completa compatible con iframes y GitHub Pages
+    function copyRelativeUrl(filename) {
+      const fullUrl = new URL(filename, window.location.href).href;
+      const tempInput = document.createElement('input');
+      tempInput.value = fullUrl;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = `Enlace copiado: ${filename}`;
+      toast.classList.remove('hidden');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+
+    // Inicialización al cargar la página
+    window.addEventListener('DOMContentLoaded', () => {
+      renderVersionCards();
+      renderChangelog();
+      renderComparisonMatrix();
+    });
+  </script>
+</body>
+</html>
