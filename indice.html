@@ -59,7 +59,7 @@
           </div>
 
           <p class="text-sm text-slate-400 leading-relaxed">
-            Repositorio de entregas e iteraciones funcionales del prototipo de interfaz gráfica de usuario. Seleccioná cualquiera de las versiones desplegadas para navegar la aplicación o revisá el registro detallado de evolución técnica y funcional.
+            Repositorio de entregas e iteraciones del prototipo de interfaz gráfica de usuario. Explorá la etapa inicial de wireframing en media fidelidad o navegá cualquiera de las versiones funcionales desplegadas.
           </p>
         </div>
 
@@ -89,14 +89,59 @@
   <!-- ===================================================================== -->
   <main class="max-w-7xl mx-auto px-5 sm:px-8 py-8 lg:py-10 space-y-10">
 
-    <!-- SECCIÓN 1: TARJETAS DE ACCESO A LAS 4 VERSIONES HOSTED -->
+    <!-- SECCIÓN 1: PROTOTIPO DE MEDIA FIDELIDAD (WIREFRAME ESQUEMÁTICO) -->
     <section class="space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
         <div>
-          <h2 class="text-xl font-bold text-slate-900">Versiones Desplegadas</h2>
-          <p class="text-xs text-slate-500">Hacé clic en cualquier versión para abrirla en una pestaña nueva y comparar la evolución de la interfaz.</p>
+          <h2 class="text-xl font-bold text-slate-900">Prototipo de Media Fidelidad (Wireframe)</h2>
+          <p class="text-xs text-slate-500">Etapa de validación estructural de arquitectura de información, grilla espacial y navegación antes del diseño visual definitivo.</p>
         </div>
-        <span class="text-xs text-slate-500 font-medium">4 builds disponibles en el repositorio</span>
+        <span class="text-xs text-slate-500 font-medium">Etapa previa a alta fidelidad</span>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div class="space-y-2.5 max-w-3xl">
+          <div class="flex flex-wrap items-center gap-2.5">
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-800 border border-slate-300">
+              Wireframe Esquemático · Mid-Fi
+            </span>
+            <span class="inline-flex items-center gap-1.5 text-[11px] font-mono text-slate-500 bg-slate-50 px-2.5 py-0.5 rounded-lg border border-slate-200">
+              <i class="fa-regular fa-file-code text-slate-700"></i>
+              prototipo_media_fidelidad.html
+            </span>
+          </div>
+
+          <h3 class="text-base sm:text-lg font-bold text-slate-900">
+            Esqueleto Interactivo de Pantallas y Flujos de Usuario
+          </h3>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            Representación monocromática de las 10 vistas principales del sistema (<span class="font-medium text-slate-800">Login, Dashboard, Mapa GIS, Zonas de Riesgo, Sensores, Refugios, Mediciones, Umbrales, Alertas y Estadísticas</span>) con bloques estructurales, modales genéricos y marcadores de posición renderizados sobre HTML5 Canvas.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2.5 shrink-0">
+          <a href="./prototipo_media_fidelidad.html" target="_blank" rel="noopener noreferrer"
+             class="py-2.5 px-5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-xl shadow-sm transition flex items-center justify-center gap-2 whitespace-nowrap">
+            <i class="fa-solid fa-object-group"></i>
+            <span>Ver Prototipo Media Fidelidad</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
+          </a>
+          <button type="button" onclick="copyRelativeUrl('prototipo_media_fidelidad.html')" title="Copiar enlace del prototipo de media fidelidad"
+                  class="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs transition">
+            <i class="fa-regular fa-copy"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 2: TARJETAS DE ACCESO A LAS 4 VERSIONES DE ALTA FIDELIDAD -->
+    <section class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Versiones Desplegadas (Alta Fidelidad)</h2>
+          <p class="text-xs text-slate-500">Hacé clic en cualquier versión para abrirla en una pestaña nueva y comparar la evolución funcional de la interfaz.</p>
+        </div>
+        <span class="text-xs text-slate-500 font-medium">4 builds funcionales en el repositorio</span>
       </div>
 
       <div id="version-cards-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
@@ -104,7 +149,7 @@
       </div>
     </section>
 
-    <!-- SECCIÓN 2: REGISTRO DETALLADO DE CAMBIOS (CHANGELOG + DIFERENCIAS DETECTADAS) -->
+    <!-- SECCIÓN 3: REGISTRO DETALLADO DE CAMBIOS (CHANGELOG + DIFERENCIAS DETECTADAS) -->
     <section class="space-y-5">
       <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -150,7 +195,7 @@
       </div>
     </section>
 
-    <!-- SECCIÓN 3: MATRIZ COMPARATIVA ENTRE VERSIONES -->
+    <!-- SECCIÓN 4: MATRIZ COMPARATIVA ENTRE VERSIONES -->
     <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <div class="p-5 border-b border-slate-200">
         <h2 class="text-lg font-bold text-slate-900">Matriz Comparativa de Evolución</h2>
