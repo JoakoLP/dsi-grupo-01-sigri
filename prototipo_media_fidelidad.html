@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIGRI — Wireframe Media Fidelidad (Esquemático)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Courier New', Courier, monospace;
+      background: #e5e5e5;
+      color: #111111;
+      line-height: 1.4;
+    }
+
+    /* Barra superior minimalista para cambiar de pantalla */
+    .wf-nav-bar {
+      background: #111111;
+      color: #ffffff;
+      padding: 10px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .wf-nav-title {
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .wf-nav-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .wf-nav-btn {
+      background: #2b2b2b;
+      color: #ffffff;
+      border: 1px solid #666666;
+      padding: 6px 10px;
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .wf-nav-btn.active,
+    .wf-nav-btn:hover {
+      background: #ffffff;
+      color: #111111;
+      font-weight: bold;
+    }
+
+    /* Hoja de boceto */
+    .wf-sheet {
+      max-width: 1200px;
+      margin: 18px auto 30px;
+      background: #ffffff;
+      border: 2px solid #111111;
+      min-height: calc(100vh - 90px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Primitivas de baja fidelidad */
+    .box {
+      border: 2px solid #111111;
+      background: #ffffff;
+      padding: 12px;
+    }
+
+    .box-tint {
+      border: 1.5px dashed #666666;
+      background: #f7f7f7;
+      padding: 12px;
+    }
+
+    .btn-sketch {
+      display: inline-block;
+      border: 2px solid #111111;
+      background: #ffffff;
+      color: #111111;
+      padding: 7px 12px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      min-height: 34px;
+    }
+
+    .btn-sketch.dark {
+      background: #111111;
+      color: #ffffff;
+    }
+
+    .btn-sketch.sm {
+      padding: 4px 8px;
+      font-size: 11px;
+      min-height: 26px;
+    }
+
+    .field-sketch {
+      width: 100%;
+      border: 2px solid #111111;
+      background: #fafafa;
+      padding: 7px 10px;
+      font-size: 12px;
+      color: #555555;
+      min-height: 34px;
+    }
+
+    .lbl-sketch {
+      display: block;
+      font-size: 11px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    /* Barras skeleton para texto abstracto */
+    .skel {
+      display: block;
+      height: 10px;
+      background: #d4d4d4;
+      margin-bottom: 6px;
+      width: 100%;
+    }
+
+    .skel.w-75 {
+      width: 75%;
+    }
+
+    .skel.w-50 {
+      width: 50%;
+    }
+
+    .skel.w-30 {
+      width: 30%;
+    }
+
+    /* Contenedor Canvas para marcadores de posición [ X ] */
+    .canvas-placeholder {
+      border: 2px solid #111111;
+      background: #f4f4f4;
+      width: 100%;
+      position: relative;
+    }
+
+    .canvas-placeholder canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Grillas simples */
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .row-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .row-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .row-main-side {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+    }
+
+    .row-side-main {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 16px;
+    }
+
+    /* Login Split */
+    .login-split {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      flex: 1;
+      min-height: 620px;
+    }
+
+    .login-left {
+      border-right: 2px solid #111111;
+      background: #f7f7f7;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .login-right {
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Layout interno */
+    .shell-wrap {
+      display: flex;
+      flex: 1;
+      min-height: 640px;
+    }
+
+    .sidebar-sketch {
+      width: 220px;
+      border-right: 2px solid #111111;
+      background: #f7f7f7;
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .side-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 7px 9px;
+      margin-bottom: 4px;
+      border: 1.5px solid transparent;
+      background: transparent;
+      font-family: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .side-link.active {
+      border: 2px solid #111111;
+      background: #111111;
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    .main-sketch {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .header-sketch {
+      border-bottom: 2px solid #111111;
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .body-sketch {
+      padding: 18px;
+      flex: 1;
+    }
+
+    /* Tablas esquemáticas */
+    .tbl-scroll {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table.wf-tbl {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    table.wf-tbl th,
+    table.wf-tbl td {
+      border: 1.5px solid #111111;
+      padding: 8px;
+      text-align: left;
+    }
+
+    table.wf-tbl th {
+      background: #eaeaea;
+    }
+
+    /* Modal genérico */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #ffffff;
+      border: 3px solid #111111;
+      max-width: 440px;
+      width: 100%;
+      padding: 18px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .mb-10 {
+      margin-bottom: 10px;
+    }
+
+    .mb-14 {
+      margin-bottom: 14px;
+    }
+
+    .mt-12 {
+      margin-top: 12px;
+    }
+
+    .flex-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 860px) {
+      .wf-sheet {
+        margin: 8px;
+      }
+
+      .login-split,
+      .shell-wrap,
+      .row-2,
+      .row-3,
+      .row-4,
+      .row-main-side,
+      .row-side-main {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+      }
+
+      .login-left {
+        border-right: none;
+        border-bottom: 2px solid #111111;
+      }
+
+      .sidebar-sketch {
+        width: 100%;
+        border-right: none;
+        border-bottom: 2px solid #111111;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Barra de navegación entre pantallas del Wireframe -->
+  <div class="wf-nav-bar">
+    <div class="wf-nav-title">[WIREFRAME MEDIA FIDELIDAD] SIGRI — ESQUELETO DE PANTALLAS</div>
+    <div class="wf-nav-buttons">
+      <button class="wf-nav-btn active" id="nav-login" onclick="showScreen('login')">0. Login</button>
+      <button class="wf-nav-btn" id="nav-dashboard" onclick="showScreen('dashboard')">1. Dashboard</button>
+      <button class="wf-nav-btn" id="nav-mapa" onclick="showScreen('mapa')">2. Mapa GIS</button>
+      <button class="wf-nav-btn" id="nav-zonas" onclick="showScreen('zonas')">3. Zonas</button>
+      <button class="wf-nav-btn" id="nav-sensores" onclick="showScreen('sensores')">4. Sensores</button>
+      <button class="wf-nav-btn" id="nav-refugios" onclick="showScreen('refugios')">5. Refugios</button>
+      <button class="wf-nav-btn" id="nav-monitoreo" onclick="showScreen('monitoreo')">6. Mediciones</button>
+      <button class="wf-nav-btn" id="nav-umbrales" onclick="showScreen('umbrales')">7. Umbrales</button>
+      <button class="wf-nav-btn" id="nav-alertas" onclick="showScreen('alertas')">8. Alertas</button>
+      <button class="wf-nav-btn" id="nav-estadisticas" onclick="showScreen('estadisticas')">9. Estadísticas</button>
+    </div>
+  </div>
+
+  <div class="wf-sheet">
+
+    <!-- =================================================================== -->
+    <!-- PANTALLA 0: LOGIN                                                   -->
+    <!-- =================================================================== -->
+    <div id="scr-login" class="login-split">
+      <div class="login-left">
+        <div>
+          <div class="box-tint" style="display:inline-block; font-weight:bold;">[LOGO]</div>
+          <h1 style="font-size:22px; margin:20px 0 10px;">[Título Principal del Sistema]</h1>
+          <span class="skel"></span>
+          <span class="skel w-75"></span>
+          <span class="skel w-50"></span>
+        </div>
+
+        <div class="row-3">
+          <div class="box">[Bloque Info 1]<span class="skel mt-12"></span></div>
+          <div class="box">[Bloque Info 2]<span class="skel mt-12"></span></div>
+          <div class="box">[Bloque Info 3]<span class="skel mt-12"></span></div>
+        </div>
+      </div>
+
+      <div class="login-right">
+        <div style="max-width:340px; width:100%; margin:0 auto;">
+          <h2 style="font-size:18px; margin-bottom:14px;">[Iniciar Sesión]</h2>
+
+          <div class="mb-10">
+            <span class="lbl-sketch">[Etiqueta Usuario]</span>
+            <div class="field-sketch">[Input Texto]</div>
+          </div>
+
+          <div class="mb-10">
+            <span class="lbl-sketch">[Etiqueta Contraseña]</span>
+            <div class="field-sketch">[Input Password] + [Ver]</div>
+          </div>
+
+          <div class="mb-14">
+            <span class="lbl-sketch">[Selector Perfil / Rol]</span>
+            <div class="field-sketch">[Dropdown: Admin / Operador / Autoridad v]</div>
+          </div>
+
+          <button class="btn-sketch dark" style="width:100%;" onclick="showScreen('dashboard')">
+            [BOTÓN: INGRESAR →]
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- CONTENEDOR INTERNO (SIDEBAR + HEADER + VISTAS)                      -->
+    <!-- =================================================================== -->
+    <div id="scr-shell" class="shell-wrap hidden">
+      <aside class="sidebar-sketch">
+        <div>
+          <div class="flex-between mb-14" style="border-bottom:2px solid #111; padding-bottom:8px;">
+            <strong>[LOGO SIGRI]</strong>
+            <span>[≡]</span>
+          </div>
+
+          <button class="side-link" data-s="dashboard" onclick="showScreen('dashboard')">[ ] Dashboard</button>
+          <button class="side-link" data-s="mapa" onclick="showScreen('mapa')">[ ] Mapa GIS</button>
+          <hr style="margin:8px 0; border:0; border-top:1px dashed #888;" />
+          <button class="side-link" data-s="zonas" onclick="showScreen('zonas')">[ ] Zonas de Riesgo</button>
+          <button class="side-link" data-s="sensores" onclick="showScreen('sensores')">[ ] Sensores</button>
+          <button class="side-link" data-s="refugios" onclick="showScreen('refugios')">[ ] Refugios</button>
+          <hr style="margin:8px 0; border:0; border-top:1px dashed #888;" />
+          <button class="side-link" data-s="monitoreo" onclick="showScreen('monitoreo')">[ ] Mediciones</button>
+          <button class="side-link" data-s="umbrales" onclick="showScreen('umbrales')">[ ] Umbrales</button>
+          <button class="side-link" data-s="alertas" onclick="showScreen('alertas')">[ ] Alertas [N]</button>
+          <button class="side-link" data-s="estadisticas" onclick="showScreen('estadisticas')">[ ] Estadísticas</button>
+        </div>
+
+        <div class="box-tint mt-12">
+          <div style="font-size:11px; font-weight:bold; margin-bottom:6px;">[Rol Usuario]</div>
+          <button class="btn-sketch sm" style="width:100%;" onclick="showScreen('login')">[Cerrar Sesión]</button>
+        </div>
+      </aside>
+
+      <div class="main-sketch">
+        <header class="header-sketch">
+          <strong id="hdr-title">[TÍTULO DE PANTALLA]</strong>
+          <div style="display:flex; gap:8px;">
+            <span class="box-tint" style="padding:4px 8px; font-size:11px;">[Estado Job]</span>
+            <span class="box-tint" style="padding:4px 8px; font-size:11px;">[Notif.]</span>
+          </div>
+        </header>
+
+        <div class="body-sketch">
+
+          <!-- 1. DASHBOARD -->
+          <div id="v-dashboard" class="subview">
+            <div class="row-4 mb-14">
+              <div class="box"><small>[KPI 1]</small>
+                <div style="font-size:20px; font-weight:bold;">##</div>
+              </div>
+              <div class="box"><small>[KPI 2]</small>
+                <div style="font-size:20px; font-weight:bold;">##</div>
+              </div>
+              <div class="box"><small>[KPI 3]</small>
+                <div style="font-size:20px; font-weight:bold;">##</div>
+              </div>
+              <div class="box"><small>[KPI 4]</small>
+                <div style="font-size:20px; font-weight:bold;">##</div>
+              </div>
+            </div>
+
+            <div class="row-main-side">
+              <div class="box">
+                <div class="flex-between mb-10">
+                  <strong>[TABLA: ALERTAS RECIENTES]</strong>
+                  <button class="btn-sketch sm" onclick="showScreen('alertas')">[Ver todas]</button>
+                </div>
+                <div class="tbl-scroll">
+                  <table class="wf-tbl">
+                    <thead>
+                      <tr>
+                        <th>[Cód]</th>
+                        <th>[Zona]</th>
+                        <th>[Nivel]</th>
+                        <th>[Estado]</th>
+                        <th>[Acción]</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>#01</td>
+                        <td>[Nombre Zona]</td>
+                        <td>[Nivel]</td>
+                        <td>[Estado]</td>
+                        <td>[Botón]</td>
+                      </tr>
+                      <tr>
+                        <td>#02</td>
+                        <td>[Nombre Zona]</td>
+                        <td>[Nivel]</td>
+                        <td>[Estado]</td>
+                        <td>[Botón]</td>
+                      </tr>
+                      <tr>
+                        <td>#03</td>
+                        <td>[Nombre Zona]</td>
+                        <td>[Nivel]</td>
+                        <td>[Estado]</td>
+                        <td>[Botón]</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="mt-12" style="font-size:11px;">[Paginación: &lt; 1 2 &gt;]</div>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:14px;">
+                <div class="box">
+                  <strong class="mb-10" style="display:block;">[ACCESOS DIRECTOS]</strong>
+                  <div class="field-sketch mb-10">[+ Acción Rápida 1]</div>
+                  <div class="field-sketch mb-10">[+ Acción Rápida 2]</div>
+                  <div class="field-sketch">[+ Acción Rápida 3]</div>
+                </div>
+                <div class="box">
+                  <strong class="mb-10" style="display:block;">[VISTA PREVIA MAPA]</strong>
+                  <div class="canvas-placeholder" style="height:150px;">
+                    <canvas data-label="[ X ] MINI MAPA"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. MAPA GIS -->
+          <div id="v-mapa" class="subview hidden">
+            <div class="row-side-main">
+              <div class="box">
+                <strong class="mb-10" style="display:block;">[PANEL CAPAS]</strong>
+                <div class="box-tint mb-10">[x] Capa Zonas<div class="field-sketch mt-12">[Select Filtro]</div>
+                </div>
+                <div class="box-tint mb-10">[x] Capa Sensores<div class="field-sketch mt-12">[Select Filtro]</div>
+                </div>
+                <div class="box-tint mb-10">[x] Capa Alertas<div class="field-sketch mt-12">[Select Filtro]</div>
+                </div>
+                <div class="box-tint mb-10">[x] Capa Refugios</div>
+                <div class="field-sketch">[Visor Coordenadas]</div>
+              </div>
+
+              <div class="canvas-placeholder" style="height:440px;">
+                <canvas data-label="[ X ] LIENZO MAPA GIS (ZONAS CIRCULARES + MARCADORES)"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. ZONAS DE RIESGO -->
+          <div id="v-zonas" class="subview hidden">
+            <div class="box flex-between mb-14">
+              <strong>[LISTADO DE ZONAS DE RIESGO]</strong>
+              <button class="btn-sketch dark" onclick="toggleModal(true, '[Modal: Registrar / Editar Zona]')">[+
+                Registrar]</button>
+            </div>
+            <div class="box tbl-scroll">
+              <table class="wf-tbl">
+                <thead>
+                  <tr>
+                    <th>[Cód]</th>
+                    <th>[Nombre]</th>
+                    <th>[Nivel]</th>
+                    <th>[Centro]</th>
+                    <th>[Diám/Radio]</th>
+                    <th>[Acciones]</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>#01</td>
+                    <td>[Nombre Zona]</td>
+                    <td>[Nivel]</td>
+                    <td>[Lat, Lng]</td>
+                    <td>[Valor]</td>
+                    <td>[Editar] [Borrar]</td>
+                  </tr>
+                  <tr>
+                    <td>#02</td>
+                    <td>[Nombre Zona]</td>
+                    <td>[Nivel]</td>
+                    <td>[Lat, Lng]</td>
+                    <td>[Valor]</td>
+                    <td>[Editar] [Borrar]</td>
+                  </tr>
+                  <tr>
+                    <td>#03</td>
+                    <td>[Nombre Zona]</td>
+                    <td>[Nivel]</td>
+                    <td>[Lat, Lng]</td>
+                    <td>[Valor]</td>
+                    <td>[Editar] [Borrar]</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 4. SENSORES -->
+          <div id="v-sensores" class="subview hidden">
+            <div class="box mb-14">
+              <div class="flex-between mb-10">
+                <strong>[LISTADO DE SENSORES]</strong>
+                <button class="btn-sketch dark" onclick="toggleModal(true, '[Modal: Registrar / Editar Sensor]')">[+
+                  Registrar]</button>
+              </div>
+              <div class="row-3">
+                <div class="field-sketch">[Input Buscar Código]</div>
+                <div class="field-sketch">[Select Estado]</div>
+                <div class="field-sketch">[Botón Limpiar]</div>
+              </div>
+            </div>
+            <div class="box tbl-scroll">
+              <table class="wf-tbl">
+                <thead>
+                  <tr>
+                    <th>[Cód]</th>
+                    <th>[Tipo]</th>
+                    <th>[Ubicación]</th>
+                    <th>[Zona]</th>
+                    <th>[Estado]</th>
+                    <th>[Acciones]</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>#01</td>
+                    <td>[Tipo Sensor]</td>
+                    <td>[Lat, Lng]</td>
+                    <td>[Zona]</td>
+                    <td>[Activo]</td>
+                    <td>[Simular] [Editar]</td>
+                  </tr>
+                  <tr>
+                    <td>#02</td>
+                    <td>[Tipo Sensor]</td>
+                    <td>[Lat, Lng]</td>
+                    <td>[Zona]</td>
+                    <td>[Inactivo]</td>
+                    <td>[Editar] [Borrar]</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 5. REFUGIOS -->
+          <div id="v-refugios" class="subview hidden">
+            <div class="box flex-between mb-14">
+              <strong>[LISTADO DE REFUGIOS]</strong>
+              <button class="btn-sketch dark" onclick="toggleModal(true, '[Modal: Registrar / Editar Refugio]')">[+
+                Registrar]</button>
+            </div>
+            <div class="box tbl-scroll">
+              <table class="wf-tbl">
+                <thead>
+                  <tr>
+                    <th>[Cód]</th>
+                    <th>[Nombre]</th>
+                    <th>[Descripción]</th>
+                    <th>[Ubicación]</th>
+                    <th>[Acciones]</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>#01</td>
+                    <td>[Nombre Refugio]</td>
+                    <td>[Texto descriptivo]</td>
+                    <td>[Lat, Lng]</td>
+                    <td>[Editar] [Borrar]</td>
+                  </tr>
+                  <tr>
+                    <td>#02</td>
+                    <td>[Nombre Refugio]</td>
+                    <td>[Texto descriptivo]</td>
+                    <td>[Lat, Lng]</td>
+                    <td>[Editar] [Borrar]</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 6. MEDICIONES -->
+          <div id="v-monitoreo" class="subview hidden">
+            <div class="row-2 mb-14">
+              <div class="box">
+                <strong class="mb-10" style="display:block;">[BLOQUE: CARGA MANUAL]</strong>
+                <div class="field-sketch mb-10">[Select Sensor]</div>
+                <div class="field-sketch mb-10">[Input Valor]</div>
+                <button class="btn-sketch dark">[Registrar]</button>
+              </div>
+              <div class="box">
+                <strong class="mb-10" style="display:block;">[BLOQUE: CONFIG. JOB AUTOMÁTICO]</strong>
+                <div class="field-sketch mb-10">[Input Intervalo (seg)]</div>
+                <div class="field-sketch mb-10">[Rangos por tipo]</div>
+                <button class="btn-sketch">[Guardar Config.]</button>
+              </div>
+            </div>
+
+            <div class="box">
+              <strong class="mb-10" style="display:block;">[HISTORIAL DE MEDICIONES]</strong>
+              <div class="row-4 mb-10">
+                <div class="field-sketch">[Filtro Sensor]</div>
+                <div class="field-sketch">[Filtro Zona]</div>
+                <div class="field-sketch">[Fecha/Hora Desde]</div>
+                <div class="field-sketch">[Fecha/Hora Hasta]</div>
+              </div>
+              <div class="tbl-scroll">
+                <table class="wf-tbl">
+                  <thead>
+                    <tr>
+                      <th>[Cód]</th>
+                      <th>[Sensor]</th>
+                      <th>[Valor]</th>
+                      <th>[Fecha/Hora]</th>
+                      <th>[Origen]</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>#01</td>
+                      <td>[Sensor]</td>
+                      <td>[Valor]</td>
+                      <td>[dd/mm hh:mm]</td>
+                      <td>[Manual/Auto]</td>
+                    </tr>
+                    <tr>
+                      <td>#02</td>
+                      <td>[Sensor]</td>
+                      <td>[Valor]</td>
+                      <td>[dd/mm hh:mm]</td>
+                      <td>[Manual/Auto]</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="mt-12" style="font-size:11px;">[Paginación: &lt; 1 2 &gt;]</div>
+            </div>
+          </div>
+
+          <!-- 7. UMBRALES -->
+          <div id="v-umbrales" class="subview hidden">
+            <div class="box flex-between mb-14">
+              <strong>[CONFIGURACIÓN DE UMBRALES]</strong>
+              <button class="btn-sketch dark" onclick="toggleModal(true, '[Modal: Registrar / Editar Umbral]')">[+
+                Registrar]</button>
+            </div>
+            <div class="mb-14" style="max-width:260px;">
+              <div class="field-sketch">[Filtro: Select Zona]</div>
+            </div>
+            <div class="box tbl-scroll">
+              <table class="wf-tbl">
+                <thead>
+                  <tr>
+                    <th>[Cód]</th>
+                    <th>[Zona]</th>
+                    <th>[Tipo Sensor]</th>
+                    <th>[Mín]</th>
+                    <th>[Máx]</th>
+                    <th>[Acciones]</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>#01</td>
+                    <td>[Zona]</td>
+                    <td>[Tipo Sensor]</td>
+                    <td>[Min]</td>
+                    <td>[Max]</td>
+                    <td>[Editar] [Borrar]</td>
+                  </tr>
+                  <tr>
+                    <td>#02</td>
+                    <td>[Zona]</td>
+                    <td>[Tipo Sensor]</td>
+                    <td>[Min]</td>
+                    <td>[Max]</td>
+                    <td>[Editar] [Borrar]</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 8. ALERTAS -->
+          <div id="v-alertas" class="subview hidden">
+            <div class="box flex-between mb-14">
+              <strong>[BANDEJA DE ALERTAS]</strong>
+              <div style="width:200px;">
+                <div class="field-sketch">[Filtro Estado]</div>
+              </div>
+            </div>
+            <div class="box tbl-scroll">
+              <table class="wf-tbl">
+                <thead>
+                  <tr>
+                    <th>[Cód]</th>
+                    <th>[Descripción]</th>
+                    <th>[Zona]</th>
+                    <th>[Nivel]</th>
+                    <th>[Estado]</th>
+                    <th>[Cambiar Estado]</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>#01</td>
+                    <td>[Detalle evento]</td>
+                    <td>[Zona]</td>
+                    <td>[Nivel]</td>
+                    <td>[Estado]</td>
+                    <td>[Select Estado v]</td>
+                  </tr>
+                  <tr>
+                    <td>#02</td>
+                    <td>[Detalle evento]</td>
+                    <td>[Zona]</td>
+                    <td>[Nivel]</td>
+                    <td>[Estado]</td>
+                    <td>[Select Estado v]</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="mt-12" style="font-size:11px;">[Paginación: &lt; 1 2 &gt;]</div>
+            </div>
+          </div>
+
+          <!-- 9. ESTADÍSTICAS -->
+          <div id="v-estadisticas" class="subview hidden">
+            <div class="box flex-between mb-14">
+              <strong>[ESTADÍSTICAS E INDICADORES]</strong>
+              <div style="width:220px;">
+                <div class="field-sketch">[Select Zona]</div>
+              </div>
+            </div>
+            <div class="row-3 mb-14">
+              <div class="box"><small>[MÉTRICA 1]</small>
+                <div style="font-size:20px; font-weight:bold;">##</div>
+              </div>
+              <div class="box"><small>[MÉTRICA 2]</small>
+                <div style="font-size:20px; font-weight:bold;">##</div>
+              </div>
+              <div class="box"><small>[MÉTRICA 3]</small>
+                <div style="font-size:20px; font-weight:bold;">##</div>
+              </div>
+            </div>
+            <div class="row-main-side">
+              <div class="canvas-placeholder" style="height:220px;">
+                <canvas data-label="[ X ] GRÁFICO DE LÍNEAS"></canvas>
+              </div>
+              <div class="canvas-placeholder" style="height:220px;">
+                <canvas data-label="[ X ] GRÁFICO CIRCULAR"></canvas>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Esquemático Genérico -->
+  <div id="wf-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="flex-between mb-14" style="border-bottom:2px solid #111; padding-bottom:8px;">
+        <strong id="wf-modal-title">[MODAL FORMULARIO]</strong>
+        <button class="btn-sketch sm" onclick="toggleModal(false)">[X]</button>
+      </div>
+      <div class="mb-10"><span class="lbl-sketch">[Campo 1]</span>
+        <div class="field-sketch">[Input]</div>
+      </div>
+      <div class="mb-10"><span class="lbl-sketch">[Campo 2]</span>
+        <div class="field-sketch">[Select]</div>
+      </div>
+      <div class="mb-14"><span class="lbl-sketch">[Campo 3]</span>
+        <div class="field-sketch">[Input]</div>
+      </div>
+      <div class="flex-between">
+        <button class="btn-sketch" onclick="toggleModal(false)">[Cancelar]</button>
+        <button class="btn-sketch dark" onclick="toggleModal(false)">[Guardar]</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const titles = {
+      dashboard: '[PANTALLA 1: DASHBOARD]',
+      mapa: '[PANTALLA 2: MAPA GIS]',
+      zonas: '[PANTALLA 3: ZONAS DE RIESGO]',
+      sensores: '[PANTALLA 4: SENSORES]',
+      refugios: '[PANTALLA 5: REFUGIOS]',
+      monitoreo: '[PANTALLA 6: MEDICIONES Y SIMULACIÓN]',
+      umbrales: '[PANTALLA 7: UMBRALES]',
+      alertas: '[PANTALLA 8: ALERTAS]',
+      estadisticas: '[PANTALLA 9: ESTADÍSTICAS]'
+    };
+
+    function showScreen(id) {
+      document.querySelectorAll('.wf-nav-btn').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById('nav-' + id);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      if (id === 'login') {
+        document.getElementById('scr-login').classList.remove('hidden');
+        document.getElementById('scr-shell').classList.add('hidden');
+        return;
+      }
+
+      document.getElementById('scr-login').classList.add('hidden');
+      document.getElementById('scr-shell').classList.remove('hidden');
+
+      document.querySelectorAll('.subview').forEach(v => v.classList.add('hidden'));
+      const target = document.getElementById('v-' + id);
+      if (target) target.classList.remove('hidden');
+
+      document.querySelectorAll('.side-link').forEach(l => {
+        l.classList.toggle('active', l.dataset.s === id);
+      });
+
+      if (titles[id]) {
+        document.getElementById('hdr-title').textContent = titles[id];
+      }
+
+      requestAnimationFrame(drawAllPlaceholders);
+    }
+
+    function toggleModal(open, titleText = '[MODAL FORMULARIO]') {
+      const m = document.getElementById('wf-modal');
+      if (open) {
+        document.getElementById('wf-modal-title').textContent = titleText;
+        m.classList.add('open');
+      } else {
+        m.classList.remove('open');
+      }
+    }
+
+    // Dibuja cajas de marcador de posición estándar de wireframe ([ X ]) en cada canvas
+    function drawAllPlaceholders() {
+      document.querySelectorAll('canvas[data-label]').forEach(canvas => {
+        const parent = canvas.parentElement;
+        if (!parent || parent.offsetParent === null) return;
+
+        const w = Math.max(180, parent.clientWidth);
+        const h = Math.max(120, parent.clientHeight);
+        const dpr = window.devicePixelRatio || 1;
+
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        ctx.fillStyle = '#f4f4f4';
+        ctx.fillRect(0, 0, w, h);
+
+        // Cruz diagonal de wireframe
+        ctx.strokeStyle = '#999999';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(w, h);
+        ctx.moveTo(w, 0);
+        ctx.lineTo(0, h);
+        ctx.stroke();
+
+        // Etiqueta central
+        const label = canvas.dataset.label || '[ X ]';
+        ctx.font = 'bold 12px Courier New';
+        const textWidth = ctx.measureText(label).width;
+        const boxW = Math.min(w - 20, textWidth + 20);
+        const boxH = 28;
+
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#111111';
+        ctx.lineWidth = 1.5;
+        ctx.fillRect((w - boxW) / 2, (h - boxH) / 2, boxW, boxH);
+        ctx.strokeRect((w - boxW) / 2, (h - boxH) / 2, boxW, boxH);
+
+        ctx.fillStyle = '#111111';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(label, w / 2, h / 2, boxW - 10);
+      });
+    }
+
+    window.addEventListener('resize', drawAllPlaceholders);
+    window.addEventListener('DOMContentLoaded', drawAllPlaceholders);
+  </script>
+</body>
+
+</html>
