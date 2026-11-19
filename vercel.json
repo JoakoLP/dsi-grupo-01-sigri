@@ -5,6 +5,14 @@
             "destination": "/indice.html"
         },
         {
+            "source": "/media-fidelidad",
+            "destination": "/prototipo_media_fidelidad.html"
+        },
+        {
+            "source": "/mid-fi",
+            "destination": "/prototipo_media_fidelidad.html"
+        },
+        {
             "source": "/v0",
             "destination": "/prototipo_interactivo_sigri_v0.html"
         },
