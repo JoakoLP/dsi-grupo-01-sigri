@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,17 +12,35 @@
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f5f9; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
-    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
   </style>
 </head>
+
 <body class="bg-slate-50 text-slate-800 antialiased selection:bg-blue-600 selection:text-white">
 
   <!-- Toast de notificación para acciones de copia -->
-  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl text-xs font-medium flex items-center gap-2.5 border border-slate-700">
+  <div id="toast"
+    class="fixed bottom-5 right-5 z-50 hidden bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl text-xs font-medium flex items-center gap-2.5 border border-slate-700">
     <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
     <span id="toast-msg">Enlace copiado al portapapeles.</span>
   </div>
@@ -30,8 +49,9 @@
   <!-- ENCABEZADO INSTITUCIONAL (HERO)                                       -->
   <!-- ===================================================================== -->
   <header class="bg-slate-900 text-white border-b border-slate-800 relative overflow-hidden">
-    <div class="absolute inset-0 opacity-15 pointer-events-none" style="background-image: radial-gradient(#38bdf8 1px, transparent 1px); background-size: 24px 24px;"></div>
-    
+    <div class="absolute inset-0 opacity-15 pointer-events-none"
+      style="background-image: radial-gradient(#38bdf8 1px, transparent 1px); background-size: 24px 24px;"></div>
+
     <div class="max-w-7xl mx-auto px-5 sm:px-8 py-10 lg:py-14 relative z-10">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
         <div class="space-y-4 max-w-3xl">
@@ -45,7 +65,8 @@
           </div>
 
           <div class="flex items-center gap-3.5">
-            <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-2xl font-bold shadow-lg shadow-blue-600/30 shrink-0">
+            <div
+              class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-2xl font-bold shadow-lg shadow-blue-600/30 shrink-0">
               <i class="fa-solid fa-water"></i>
             </div>
             <div>
@@ -59,12 +80,14 @@
           </div>
 
           <p class="text-sm text-slate-400 leading-relaxed">
-            Repositorio de entregas e iteraciones del prototipo de interfaz gráfica de usuario. Explorá la etapa inicial de wireframing en media fidelidad o navegá cualquiera de las versiones funcionales desplegadas.
+            Repositorio de entregas e iteraciones del prototipo de interfaz gráfica de usuario. Explorá la etapa inicial
+            de wireframing en media fidelidad o navegá cualquiera de las versiones funcionales desplegadas.
           </p>
         </div>
 
         <!-- Acceso Directo Destacado a la Versión Final (/v1) -->
-        <div class="bg-slate-800/80 backdrop-blur-xs border border-slate-700 p-5 rounded-2xl lg:w-80 shrink-0 space-y-3">
+        <div
+          class="bg-slate-800/80 backdrop-blur-xs border border-slate-700 p-5 rounded-2xl lg:w-80 shrink-0 space-y-3">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Versión Final
@@ -72,10 +95,11 @@
             <span class="font-mono text-xs text-slate-400">/v1</span>
           </div>
           <p class="text-xs text-slate-300 leading-relaxed">
-            Incluye control de roles por actor, job automático configurable (1200s), filtros avanzados, paginado y vista móvil GIS corregida.
+            Incluye control de roles por actor, job automático configurable (1200s), filtros avanzados, paginado y vista
+            móvil GIS corregida.
           </p>
           <a href="/v1" target="_blank" rel="noopener noreferrer"
-             class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-md transition flex items-center justify-center gap-2">
+            class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-md transition flex items-center justify-center gap-2">
             <span>Abrir Prototipo v1</span>
             <i class="fa-solid fa-arrow-up-right-from-square"></i>
           </a>
@@ -94,18 +118,23 @@
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
         <div>
           <h2 class="text-xl font-bold text-slate-900">Prototipo de Media Fidelidad (Wireframe)</h2>
-          <p class="text-xs text-slate-500">Etapa de validación estructural de arquitectura de información, grilla espacial y navegación antes del diseño visual definitivo.</p>
+          <p class="text-xs text-slate-500">Etapa de validación estructural de arquitectura de información, grilla
+            espacial y navegación antes del diseño visual definitivo.</p>
         </div>
         <span class="text-xs text-slate-500 font-medium">Etapa previa a alta fidelidad</span>
       </div>
 
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div
+        class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div class="space-y-2.5 max-w-3xl">
           <div class="flex flex-wrap items-center gap-2.5">
-            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-800 border border-slate-300">
+            <span
+              class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-800 border border-slate-300">
               Wireframe Esquemático · Mid-Fi
             </span>
-            <span class="inline-flex items-center gap-1.5 text-[11px] font-mono text-slate-600 bg-slate-50 px-2.5 py-0.5 rounded-lg border border-slate-200" title="Archivo destino: prototipo_media_fidelidad.html">
+            <span
+              class="inline-flex items-center gap-1.5 text-[11px] font-mono text-slate-600 bg-slate-50 px-2.5 py-0.5 rounded-lg border border-slate-200"
+              title="Archivo destino: prototipo_media_fidelidad.html">
               <i class="fa-solid fa-link text-slate-700"></i>
               /media-fidelidad
             </span>
@@ -115,19 +144,77 @@
             Esqueleto Interactivo de Pantallas y Flujos de Usuario
           </h3>
           <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-            Representación monocromática de las 10 vistas principales del sistema (<span class="font-medium text-slate-800">Login, Dashboard, Mapa GIS, Zonas de Riesgo, Sensores, Refugios, Mediciones, Umbrales, Alertas y Estadísticas</span>) con bloques estructurales, modales genéricos y marcadores de posición renderizados sobre HTML5 Canvas.
+            Representación monocromática de las 10 vistas principales del sistema (<span
+              class="font-medium text-slate-800">Login, Dashboard, Mapa GIS, Zonas de Riesgo, Sensores, Refugios,
+              Mediciones, Umbrales, Alertas y Estadísticas</span>) con bloques estructurales, modales genéricos y
+            marcadores de posición renderizados sobre HTML5 Canvas.
           </p>
         </div>
 
         <div class="flex items-center gap-2.5 shrink-0">
           <a href="/media-fidelidad" target="_blank" rel="noopener noreferrer"
-             class="py-2.5 px-5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-xl shadow-sm transition flex items-center justify-center gap-2 whitespace-nowrap">
+            class="py-2.5 px-5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-xl shadow-sm transition flex items-center justify-center gap-2 whitespace-nowrap">
             <i class="fa-solid fa-object-group"></i>
             <span>Ver Prototipo Media Fidelidad</span>
             <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
           </a>
-          <button type="button" onclick="copyRouteUrl('/media-fidelidad')" title="Copiar enlace del prototipo de media fidelidad"
-                  class="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs transition">
+          <button type="button" onclick="copyRouteUrl('/media-fidelidad')"
+            title="Copiar enlace del prototipo de media fidelidad"
+            class="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs transition">
+            <i class="fa-regular fa-copy"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: COMPARADOR EVOLUTIVO DE PROTOTIPOS (/comparativa) -->
+    <section class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Comparador de Prototipos (Baja, Media y Alta Fidelidad)</h2>
+          <p class="text-xs text-slate-500">Tablero interactivo en columnas para contrastar los 10 módulos del sistema a
+            través de las 3 etapas de diseño.</p>
+        </div>
+        <span class="text-xs text-slate-500 font-medium">36 capturas organizadas · React + Vite</span>
+      </div>
+
+      <div
+        class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div class="space-y-2.5 max-w-3xl">
+          <div class="flex flex-wrap items-center gap-2.5">
+            <span
+              class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-800 border border-purple-200">
+              Evolución UX/UI · 3 Fidelidades
+            </span>
+            <span
+              class="inline-flex items-center gap-1.5 text-[11px] font-mono text-slate-600 bg-slate-50 px-2.5 py-0.5 rounded-lg border border-slate-200"
+              title="Aplicación React en comparador-prototipos">
+              <i class="fa-solid fa-link text-purple-700"></i>
+              /comparativa
+            </span>
+          </div>
+
+          <h3 class="text-base sm:text-lg font-bold text-slate-900">
+            Matriz Visual Horizontal por Módulo con Vista Ampliada
+          </h3>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            Permite inspeccionar lado a lado el recorrido completo desde los bocetos de <span
+              class="font-medium text-slate-800">Baja Fidelidad</span> y wireframes de <span
+              class="font-medium text-slate-800">Media Fidelidad</span> hasta la interfaz final en <span
+              class="font-medium text-slate-800">Alta Fidelidad</span> (incluyendo estados alternativos y modales).
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2.5 shrink-0">
+          <a href="/comparativa" target="_blank" rel="noopener noreferrer"
+            class="py-2.5 px-5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-xl shadow-sm transition flex items-center justify-center gap-2 whitespace-nowrap">
+            <i class="fa-solid fa-table-columns"></i>
+            <span>Abrir Comparador</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
+          </a>
+          <button type="button" onclick="copyRouteUrl('/comparativa')"
+            title="Copiar enlace del comparador (/comparativa)"
+            class="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs transition">
             <i class="fa-regular fa-copy"></i>
           </button>
         </div>
@@ -139,7 +226,8 @@
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
         <div>
           <h2 class="text-xl font-bold text-slate-900">Versiones Desplegadas (Alta Fidelidad)</h2>
-          <p class="text-xs text-slate-500">Hacé clic en cualquier versión para abrirla en una pestaña nueva y comparar la evolución funcional de la interfaz.</p>
+          <p class="text-xs text-slate-500">Hacé clic en cualquier versión para abrirla en una pestaña nueva y comparar
+            la evolución funcional de la interfaz.</p>
         </div>
         <span class="text-xs text-slate-500 font-medium">4 builds funcionales en el repositorio</span>
       </div>
@@ -156,13 +244,15 @@
           <div>
             <h2 class="text-xl font-bold text-slate-900">Registro Detallado de Cambios (Changelog)</h2>
             <p class="text-xs text-slate-500 mt-0.5">
-              Consolidación de los cambios documentados en el proyecto junto con las diferencias técnicas y estructurales detectadas entre archivos.
+              Consolidación de los cambios documentados en el proyecto junto con las diferencias técnicas y
+              estructurales detectadas entre archivos.
             </p>
           </div>
 
           <div class="flex flex-wrap items-center gap-2.5">
             <!-- Ordenar cronológicamente -->
-            <button id="sort-order-btn" onclick="toggleSortOrder()" class="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold flex items-center gap-2 transition">
+            <button id="sort-order-btn" onclick="toggleSortOrder()"
+              class="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold flex items-center gap-2 transition">
               <i class="fa-solid fa-arrow-down-wide-short text-blue-600"></i>
               <span id="sort-order-label">Más reciente primero (v1 → v0)</span>
             </button>
@@ -176,15 +266,23 @@
               <i class="fa-solid fa-magnifying-glass text-xs"></i>
             </span>
             <input type="text" id="changelog-search" oninput="renderChangelog()"
-                   placeholder="Buscar cambio (ej: Arroyo del Gato, roles, paginado, umbrales, mobile...)"
-                   class="w-full pl-9 pr-3.5 py-2 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-600" />
+              placeholder="Buscar cambio (ej: Arroyo del Gato, roles, paginado, umbrales, mobile...)"
+              class="w-full pl-9 pr-3.5 py-2 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-600" />
           </div>
           <div class="sm:col-span-6 lg:col-span-5 flex flex-wrap gap-1.5 items-center">
-            <button onclick="setCategoryFilter('all')" data-cat="all" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-600 text-white transition">Todos</button>
-            <button onclick="setCategoryFilter('gis')" data-cat="gis" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Mapa GIS</button>
-            <button onclick="setCategoryFilter('funcional')" data-cat="funcional" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Funcional</button>
-            <button onclick="setCategoryFilter('ui')" data-cat="ui" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">UI / UX</button>
-            <button onclick="setCategoryFilter('tecnico')" data-cat="tecnico" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Diff Técnico</button>
+            <button onclick="setCategoryFilter('all')" data-cat="all"
+              class="cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-600 text-white transition">Todos</button>
+            <button onclick="setCategoryFilter('gis')" data-cat="gis"
+              class="cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Mapa
+              GIS</button>
+            <button onclick="setCategoryFilter('funcional')" data-cat="funcional"
+              class="cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Funcional</button>
+            <button onclick="setCategoryFilter('ui')" data-cat="ui"
+              class="cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">UI
+              / UX</button>
+            <button onclick="setCategoryFilter('tecnico')" data-cat="tecnico"
+              class="cat-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Diff
+              Técnico</button>
           </div>
         </div>
       </div>
@@ -199,12 +297,14 @@
     <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <div class="p-5 border-b border-slate-200">
         <h2 class="text-lg font-bold text-slate-900">Matriz Comparativa de Evolución</h2>
-        <p class="text-xs text-slate-500 mt-0.5">Resumen rápido de características presentes en cada archivo HTML del repositorio.</p>
+        <p class="text-xs text-slate-500 mt-0.5">Resumen rápido de características presentes en cada archivo HTML del
+          repositorio.</p>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs sm:text-sm border-collapse">
           <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            <tr
+              class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
               <th class="py-3.5 px-4">Característica / Módulo</th>
               <th class="py-3.5 px-4 text-center">v0 (Base)</th>
               <th class="py-3.5 px-4 text-center">v0.1</th>
@@ -225,7 +325,8 @@
   <!-- PIE DE PÁGINA                                                         -->
   <!-- ===================================================================== -->
   <footer class="border-t border-slate-200 bg-white mt-12">
-    <div class="max-w-7xl mx-auto px-5 sm:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+    <div
+      class="max-w-7xl mx-auto px-5 sm:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
       <div>
         <strong class="text-slate-800">SIGRI</strong> — Sistema de Gestión de Riesgo de Inundaciones con Integración GIS
       </div>
@@ -528,4 +629,5 @@
     });
   </script>
 </body>
+
 </html>

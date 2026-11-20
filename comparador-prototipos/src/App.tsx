@@ -23,28 +23,28 @@ const fidelityColumns: Array<{
   caption: string;
   accent: string;
 }> = [
-  {
-    id: "low",
-    number: "01",
-    title: "Baja fidelidad",
-    caption: "Estructura y flujo",
-    accent: "#A6D8CF",
-  },
-  {
-    id: "mid",
-    number: "02",
-    title: "Media fidelidad",
-    caption: "Jerarquía y contenido",
-    accent: "#D8B4FE",
-  },
-  {
-    id: "high",
-    number: "03",
-    title: "Alta fidelidad",
-    caption: "Diseño visual final",
-    accent: "#FDBA74",
-  },
-];
+    {
+      id: "low",
+      number: "01",
+      title: "Baja fidelidad",
+      caption: "Estructura y flujo",
+      accent: "#A6D8CF",
+    },
+    {
+      id: "mid",
+      number: "02",
+      title: "Media fidelidad",
+      caption: "Jerarquía y contenido",
+      accent: "#D8B4FE",
+    },
+    {
+      id: "high",
+      number: "03",
+      title: "Alta fidelidad",
+      caption: "Diseño visual final",
+      accent: "#FDBA74",
+    },
+  ];
 
 const stepDetails = [
   ["Acceso al sistema", "Bienvenida e inicio de sesión"],
@@ -87,32 +87,32 @@ const initialSteps: Step[] = stepDetails.map(([name, description], index) => {
       low: [
         {
           name: `Baja fidelidad · ${number}`,
-          url: `/prototypes/low/${number}.${lowExtension}`,
+          url: `${import.meta.env.BASE_URL}prototypes/low/${number}.${lowExtension}`,
           variant: "base",
         },
       ],
       mid: [
         {
           name: `Media fidelidad · ${number}`,
-          url: `/prototypes/mid/${number}.${midExtension}`,
+          url: `${import.meta.env.BASE_URL}prototypes/mid/${number}.${midExtension}`,
           variant: "base",
         },
       ],
       high: [
         {
           name: `Alta fidelidad · ${number}`,
-          url: `/prototypes/high/${number}.${highExtension}`,
+          url: `${import.meta.env.BASE_URL}prototypes/high/${number}.${highExtension}`,
           variant: "base",
         },
         ...(modalVariants.has(step)
           ? [
-              {
-                name: `Alta fidelidad · ${number}a · ${alternativeLabels[step] ?? "Modal abierto"}`,
-                url: `/prototypes/high/${number}a.${highExtension}`,
-                variant: "modal" as const,
-                variantLabel: alternativeLabels[step] ?? "Modal abierto",
-              },
-            ]
+            {
+              name: `Alta fidelidad · ${number}a · ${alternativeLabels[step] ?? "Modal abierto"}`,
+              url: `${import.meta.env.BASE_URL}prototypes/high/${number}a.${highExtension}`,
+              variant: "modal" as const,
+              variantLabel: alternativeLabels[step] ?? "Modal abierto",
+            },
+          ]
           : []),
       ],
     },

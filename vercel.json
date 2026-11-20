@@ -27,6 +27,18 @@
         {
             "source": "/v1",
             "destination": "/prototipo_interactivo_sigri_v1.html"
+        },
+        {
+            "source": "/comparativa",
+            "destination": "/comparativa/index.html"
+        },
+        {
+            "source": "/comparativa/",
+            "destination": "/comparativa/index.html"
+        },
+        {
+            "source": "/comparativa/(.*)",
+            "destination": "/comparativa/$1"
         }
     ]
 }
