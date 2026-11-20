@@ -1,0 +1,10 @@
+{
+  "description": "Organiza capturas de prototipos de baja, media y alta fidelidad en columnas para comparar horizontalmente los pasos y las vistas durante el diseño.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
